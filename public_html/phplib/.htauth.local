@@ -1,0 +1,47 @@
+<?php
+$_ENV["Domain"] = "rtrmin.local";
+$_ENV["HomeDirs"] = "/var/www/";
+$_ENV["BaseName"] = "rtrmin";
+$_ENV["SubFolder"] = "";
+$_ENV["DocRoot"] = "/var/www/rtrmin/public_html";
+$_ENV["SiteRoot"] = "/var/www/rtrmin/public_html/";
+$_ENV["DatabaseClass"] = "DB_".$_ENV["BaseName"];
+$_ENV["SessionClass"] = $_ENV["BaseName"]."_Session";
+$_ENV["AuthClass"] = $_ENV["BaseName"]."_Auth";
+$_ENV["PermClass"] = $_ENV["BaseName"]."_Perm";
+$_ENV["Perms"] = "guest,user,editor,admin";
+$_ENV["MenuMode"] = "vert";   /*horiz/vert*/
+$_ENV["LocalCurrency"] = "AUD";
+$_ENV["RegisterMode"] = "Email";  /* Auto, Approve or Email, see register.php */
+$_ENV["UserDetailsTable"] = "Contacts";
+$_ENV["UserEmailAddressField"] = "Email";
+$_ENV["UserAuthIdField"] = "user_id";
+$_ENV["MyForeignKeys"] = "LinkedTables";  /* table that stores associations for drop down boxes on forms */
+$_ENV["MyForeignKeysDB"] = $_ENV["DatabaseClass"];
+$_ENV["no_edit"] = array("radacct","pp_transactions","EventLog"); /* tables not to be edited */
+$_ENV["editor"] = "fckeditor";
+$_ENV["HelpDesk"] = " from 9am to 8pm";
+/* html header files are deprecated, autogen codes these, independantly now for more control */
+$_ENV["header"] = "head.inc";  #eg "head.inc";	   /* html header file to output as the page_open */
+$_ENV["pophead"] = "pophead.inc"; #eg "pophead.inc";  /* html header file to output when it's a popup */
+$_ENV["footer"] = "foot.inc";  #eg "foot.inc";	   /* html footer file to output in page_close */
+
+class DB_rtrmin extends DB_Sql {
+  var $Host     = "localhost";
+  var $Database = "rancid";
+  var $User     = "root";
+  var $Password = "all2hard4u";
+  var $Server   = "mysql";
+  var $charset  = "utf8";
+}
+function hash_auth($u,$p) {
+        # it is recommended you come up with your own method here
+        # make sure it's database safe, as there is no additional escaping in password functions
+        #return addslashes($p);         // store passwords in clear text - not recommended.
+        #return md5($p);                // better but still not great.
+        #return sha1($p.$u);            // username used as a salt, and better hash
+        return base64_encode(hash("sha256",$p.md5($u),true));  // now this could be tricky to crack
+        #return base64_encode(hash("sha512",sha1($p).md5($u),true));  // now this could be tricky to crack
+}
+
+?>

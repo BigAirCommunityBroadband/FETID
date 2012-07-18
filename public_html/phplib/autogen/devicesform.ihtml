@@ -1,0 +1,38 @@
+<?php
+  $this->form_data->start("devicesform");
+  if ($this->error) printf("<P class=error>Error: %s %s</p>\n", $ErrorFieldName, $this->error);  
+  if ($this->errors) foreach($this->errors as $error) printf("<P class=error>Error: %s</p>\n", $error);
+?>
+ <table class='tplform'>     <tr><td></td><td>
+		<?php $this->form_data->show_element('id'); ?> </td></tr>
+    <tr><td>Ip</td><td>
+		<?php $this->form_data->show_element('ip'); ?> </td></tr>
+    <tr><td>Section</td><td>
+		<?php $this->form_data->show_element('section'); ?> </td></tr>
+    <tr><td>Type</td><td>
+		<?php $this->form_data->show_element('type'); ?> </td></tr>
+    <tr><td>Login Type</td><td>
+		<?php $this->form_data->show_element('login_type'); ?> </td></tr>
+    <tr><td>Username</td><td>
+		<?php $this->form_data->show_element('username'); ?> </td></tr>
+    <tr><td>Passwd</td><td>
+		<?php $this->form_data->show_element('passwd'); ?> </td></tr>
+    <tr><td>En Passwd</td><td>
+		<?php $this->form_data->show_element('en_passwd'); ?> </td></tr>
+    <tr><td>&nbsp;</td><td> 
+		<?php 
+                if ($cmd=="View") {
+                        $cmd="Back";
+                        echo "<a href=".$sess->url("devices.php");
+                        echo $sess->add_query(array("cmd"=>"Edit","id"=>$GLOBALS["id"]));
+                        echo ">Edit</a>";
+                } else {
+                        if ($cmd=="Add") $cmd="Save";
+                        if ($cmd=="Edit") $cmd="Save";
+                        $this->form_data->show_element('submit',$cmd);
+                }
+		echo "&nbsp;<a href='".$sess->url("devices.php")."'>Back</a>";
+		?> </td></tr>
+ </table>
+<?php $this->form_data->finish();
+?>

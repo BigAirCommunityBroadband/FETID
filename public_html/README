@@ -1,0 +1,28 @@
+Current Requirements:
+
+mysql package 
+php package 
+php_mysql package
+perl
+DBI perl module 
+DBD::mysql perl module   
+
+
+Description:
+
+I wanted to create a simple web front-end to RANCID that our network techs. could use to add and delete switches/routers to/from RANCID.  In doing so, I left the RANCID package in tact and created scripts to use with the existing RANCID installation. 
+
+The scripts use a database table to store the switch/router login information.  From crontab, we run the routerdb.pl and cloginrc.pl files which dumps the needed information into the respective router.db and the .cloginrc file.  We do this daily before the RANCID process runs.     
+
+
+Installing:
+
+Basically, there are just a few things to get this running:
+
+1. Install needed packages/modules from the above requirements list.
+2. Create a database user and password that will be used to run the php and perl scripts.
+3. Create a database table (use the included table.sql file). 
+4. Move the included php scripts (register.php, delete.php, search.php) into your web root and modify the database username/password in each.
+5. Edit the pull down menu (in the register and search php files) that list the RANCID groups to your suit your situation.
+6. Edit the @section array in the 2 perl scripts to contain your RANCID groups (just as above). 
+7. Add crontab entries for the cloginrc.pl and the routerdb.pl perl scripts (change the database username/password in these too).

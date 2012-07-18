@@ -1,0 +1,50 @@
+td.ae a {
+        display: block;
+        float: left;
+        width:16px;
+        height:16px;
+        overflow:hidden;
+        text-ixndent:99px;
+}
+td.ae a i {
+	
+}
+td.axe a.ae_view { background: url('/images/icons/view.png'); }
+td.axe a.ae_copy { background: url('/images/icons/copy.png'); }
+td.axe a.ae_edit { background: url('/images/icons/edit.png'); }
+td.axe a.ae_print { background: url('/images/icons/printer.png'); }
+td.axe a.ae_delete { background: url('/images/icons/delete.png'); }
+td.axe a.ae_process { background: url('/images/icons/paypal.png'); }
+td.axe a.ae_boot { background: url('/images/icons/Boot.png'); }
+td.axe a.ae_report { background: url('/images/icons/report.png'); }
+td.axe a.ae_refund { background: url('/images/icons/money_delete.png'); }
+td.axe a.ae_email_attach { background: url('/images/icons/email_attach.png'); }
+
+td.insert_row {
+	white-space:nowrap;
+}
+
+form#ColumnSelector {
+	-webkit-column-count: 4;
+	-moz-column-count: 4;
+}
+
+.float_left{float:left}
+.keep_together{page-break-inside: avoid}
+.clear_both{clear:both}
+
+
+.bggreen        { background-color: #11cd11 ; text-align: center ; color:white }
+.bgred          { background-color: red ; text-align: center ; color:white }
+.bgyellow       { background-color: yellow ; text-align: center ; color:blue }
+
+
+/* tables */
+table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
+background-color: #8dbdd8;
+}
+
+.bold_red {
+	font-weight: bold;
+	color: red;
+}

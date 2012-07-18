@@ -1,0 +1,44 @@
+<?php
+  $this->form_data->start("EventLogform");
+  if ($this->error) printf("<P class=error>Error: %s %s</p>\n", $ErrorFieldName, $this->error);  
+  if ($this->errors) foreach($this->errors as $error) printf("<P class=error>Error: %s</p>\n", $error);
+?>
+ <table class='tplform'>     <tr><td></td><td>
+		<?php $this->form_data->show_element('id'); ?> </td></tr>
+    <tr><td>Event Time</td><td>
+		<?php $this->form_data->show_element('EventTime'); ?> 
+                <?php if (!isset($this->form_data->elements['EventTime']['frozen'])) { ?>
+			<a href="javascript:show_cal('EventLogform', 'EventTime');">
+			<img src=/image/cal.gif width=16 height=16 border=0 
+				alt="Click here to pick a date from the calendar"></a>
+                <?php } ?>
+		</td></tr>
+    <tr><td>Program</td><td>
+		<?php $this->form_data->show_element('Program'); ?> </td></tr>
+    <tr><td>I P Address</td><td>
+		<?php $this->form_data->show_element('IPAddress'); ?> </td></tr>
+    <tr><td>User Name</td><td>
+		<?php $this->form_data->show_element('UserName'); ?> </td></tr>
+    <tr><td>Description</td><td>
+		<?php $this->form_data->show_element('Description'); ?> </td></tr>
+    <tr><td>Extra Info</td><td>
+		<?php $this->form_data->show_element('ExtraInfo'); ?> </td></tr>
+    <tr><td>Level</td><td>
+		<?php $this->form_data->show_element('Level'); ?> </td></tr>
+    <tr><td>&nbsp;</td><td> 
+		<?php 
+                if ($cmd=="View") {
+                        $cmd="Back";
+                        echo "<a href=".$sess->url("EventLog.php");
+                        echo $sess->add_query(array("cmd"=>"Edit","id"=>$GLOBALS["id"]));
+                        echo ">Edit</a>";
+                } else {
+                        if ($cmd=="Add") $cmd="Save";
+                        if ($cmd=="Edit") $cmd="Save";
+                        $this->form_data->show_element('submit',$cmd);
+                }
+		echo "&nbsp;<a href='".$sess->url("EventLog.php")."'>Back</a>";
+		?> </td></tr>
+ </table>
+<?php $this->form_data->finish();
+?>

@@ -1,0 +1,50 @@
+<?php
+  $this->form_data->start("menuform");
+  if ($this->error) printf("<P class=error>Error: %s %s</p>\n", $ErrorFieldName, $this->error);  
+  if ($this->errors) foreach($this->errors as $error) printf("<P class=error>Error: %s</p>\n", $error);
+?>
+ <table class='tplform'>     <tr><td></td><td>
+		<?php $this->form_data->show_element('id'); ?> </td></tr>
+    <tr><td>Parent</td><td>
+		<?php $this->form_data->show_element('parent'); ?> </td></tr>
+    <tr><td>Position</td><td>
+		<?php $this->form_data->show_element('position'); ?> </td></tr>
+    <tr><td>Title</td><td>
+		<?php $this->form_data->show_element('title'); ?> </td></tr>
+    <tr><td>Target</td><td>
+		<?php $this->form_data->show_element('target'); ?> </td></tr>
+    <tr><td>Header</td><td>
+		<?php $this->form_data->show_element('header'); ?> </td></tr>
+    <tr><td>Subnavhdr</td><td>
+		<?php $this->form_data->show_element('subnavhdr'); ?> </td></tr>
+    <tr><td>Html Title</td><td>
+		<?php $this->form_data->show_element('HtmlTitle'); ?> </td></tr>
+    <tr><td>Meta Data</td><td>
+		<?php $this->form_data->show_element('MetaData'); ?> </td></tr>
+    <tr><td>View Requires</td><td>
+		<?php $this->form_data->show_element('view_requires'); ?> </td></tr>
+    <tr><td>Edit Requires</td><td>
+		<?php $this->form_data->show_element('edit_requires'); ?> </td></tr>
+    <tr><td>Long Description</td><td>
+		<?php $this->form_data->show_element('LongDescription'); ?> </td></tr>
+    <tr><td>Help Text</td><td>
+		<?php $this->form_data->show_element('HelpText'); ?> </td></tr>
+    <tr><td>Width</td><td>
+		<?php $this->form_data->show_element('width'); ?> </td></tr>
+    <tr><td>&nbsp;</td><td> 
+		<?php 
+                if ($cmd=="View") {
+                        $cmd="Back";
+                        echo "<a href=".$sess->url("menu.php");
+                        echo $sess->add_query(array("cmd"=>"Edit","id"=>$GLOBALS["id"]));
+                        echo ">Edit</a>";
+                } else {
+                        if ($cmd=="Add") $cmd="Save";
+                        if ($cmd=="Edit") $cmd="Save";
+                        $this->form_data->show_element('submit',$cmd);
+                }
+		echo "&nbsp;<a href='".$sess->url("menu.php")."'>Back</a>";
+		?> </td></tr>
+ </table>
+<?php $this->form_data->finish();
+?>
