@@ -49,7 +49,7 @@ class MymenuTable extends Table {
 echo "<p align=right><a href='AuditPerms.php'>Menu Audit</a></p>";
 echo "<h2>Menu Editor</h2>";
 
-get_request_values("id,submit,cmd,parent,menufieldsi,target");
+get_request_values("id,submit,cmd,parent,menufields,target");
 
 $f = new menuform;
 
