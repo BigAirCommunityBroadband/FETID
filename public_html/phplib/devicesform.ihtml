@@ -5,20 +5,30 @@
 ?>
  <table class='tplform'>     <tr><td></td><td>
 		<?php $this->form_data->show_element('id'); ?> </td></tr>
-    <tr><td>Ip</td><td>
-		<?php $this->form_data->show_element('ip'); ?> </td></tr>
+    <tr><td>Hostname or IP Address</td><td>
+		<?php $this->form_data->show_element('hostname'); ?> </td></tr>
     <tr><td>Section</td><td>
 		<?php $this->form_data->show_element('section'); ?> </td></tr>
-    <tr><td>Type</td><td>
+    <tr><td>Device Type</td><td>
 		<?php $this->form_data->show_element('type'); ?> </td></tr>
     <tr><td>Login Type</td><td>
 		<?php $this->form_data->show_element('login_type'); ?> </td></tr>
     <tr><td>Username</td><td>
 		<?php $this->form_data->show_element('username'); ?> </td></tr>
-    <tr><td>Passwd</td><td>
+    <tr><td>Password</td><td>
 		<?php $this->form_data->show_element('passwd'); ?> </td></tr>
-    <tr><td>En Passwd</td><td>
-		<?php $this->form_data->show_element('en_passwd'); ?> </td></tr>
+    <tr><td>Password</td><td>
+		<?php $this->form_data->show_element('passwd'); ?> (again)</td></tr>
+    <tr><td>Enable Password</td><td>
+		<?php $this->form_data->show_element('en_passwd'); ?> (cisco)</td></tr>
+    <tr><td>Enable Password</td><td>
+		<?php $this->form_data->show_element('en_passwd'); ?> (again)</td></tr>
+    <tr><td>No Enable</td><td>
+                <?php $this->form_data->show_element('no_enable'); ?> </td></tr>
+    <tr><td>SSH Command</td><td>
+                <?php $this->form_data->show_element('ssh_cmd'); ?> </td></tr>
+    <tr><td>Timeout</td><td>
+                <?php $this->form_data->show_element('timeout'); ?> seconds</td></tr>
     <tr><td>&nbsp;</td><td> 
 		<?php 
                 if ($cmd=="View") {
