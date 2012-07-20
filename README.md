@@ -1,4 +1,0 @@
-RouterAdmin
-===========
-
-Rancid GUI
