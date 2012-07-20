@@ -6,7 +6,7 @@ if ($export_results) {
 } else {
 	page_open(array("sess"=>"rtrmin_Session","auth"=>"rtrmin_Auth","perm"=>"rtrmin_Perm"));
 	#if ($Field) include("pophead.ihtml"); else include("head.ihtml");
-	echo "<h1>Devices</h1>";
+	echo "<span class='big'>Devices</span>";
 	#if (empty($Field)) include("menu.html");
 }
 check_view_perms();
@@ -116,6 +116,10 @@ if (window.opener) {
 } else {
     if ($id) {
 	$f->find_values($id);
+	#set (again) fields to be same as actual database field
+	#$f->form_data->elements["passwd"]["ob"]->value[1]
+	$passwd[1]= $passwd[0];
+	$en_passwd[1]= $en_passwd[0];
     } else {
 	include("search.php");
     }
@@ -163,7 +167,6 @@ switch ($cmd) {
 
 	$db = new DB_rtrmin;
 
-        if (!$export_results) echo "<a href=\"".$sess->self_url().$sess->add_query(array("cmd"=>"Add"))."\">Add</a> Devices\n";
 
 
         if (array_key_exists("devices_fields",$_REQUEST)) $devices_fields = $_REQUEST["devices_fields"];
@@ -179,10 +182,11 @@ switch ($cmd) {
 	#$t->align      = array('fieldname'=>'right', 'otherfield'=>'center'); 	
 
         if (!$export_results) {
-          echo "Export to ";
-          echo "&nbsp;<input name='ExportTo' type=radio onclick=\"javascript:export_results('Excel2007');\">Excel 2007&nbsp;";
+	  echo "Output to:"; 
+	  echo "&nbsp;<input name='ExportTo' type='radio' checked='checked' value='' onclick=\"javascript:export_results('');\"> Here";
+          echo "&nbsp;<input name='ExportTo' type='radio' onclick=\"javascript:export_results('Excel2007');\"> Excel 2007&nbsp;";
 
-	  echo "<a href='#ColumnChooser' data-toggle='modal'>Column Chooser</a> <div id='ColumnChooser' class='modal hide'>\n";
+	  echo "<a class='btn' href='#ColumnChooser' data-toggle='modal'>Column Chooser</a> <div id='ColumnChooser' class='modal hide'>\n";
 	  echo "<div class='modal-header'><button type='button' class='close' data-dismiss='modal'>×</button>\n";
 	  echo " <h3>Column Chooser</h3>\n</div>\n <div class='modal-body'>\n";
           echo "<form id=ColumnSelector method='post'>\n";
@@ -340,7 +344,7 @@ switch ($cmd) {
   // "x" here and in the call to $q->where must match.
   // Tag everything as a CSS "query" class.
   $mode = "'hide'";
-  echo "<a href='#customQuery' data-toggle='modal'>Custom Query</a> <div id='customQuery' class='modal hide'>\n";
+  echo "<a class='btn' href='#customQuery' data-toggle='modal'>Custom Query</a> <div id='customQuery' class='modal hide'>\n";
   echo "<div class='modal-header'><button type='button' class='close' data-dismiss='modal'>×</button>\n";
   echo " <h3>Query Stats</h3>\n</div>\n <div class='modal-body'>\n";
   printf($q_devices->form("x", $t->map_cols, "query"));
@@ -361,15 +365,16 @@ switch ($cmd) {
     #$db->query("select * from ".$db->qi("devices")." where ". $query);
 
     // Show that condition
-    echo "<a href='#QueryStats' data-toggle='modal'>Query Stats</a> <div id='QueryStats' class='modal hide'>\n";
+    echo "<a class='btn' href='#QueryStats' data-toggle='modal'>Query Stats</a> <div id='QueryStats' class='modal hide'>\n";
     echo "<div class='modal-header'><button type='button' class='close' data-dismiss='modal'>×</button>\n";
     echo " <h3>Query Stats</h3>\n</div>\n <div class='modal-body'>\n";
     printf("Query Condition = %s<br />\n", $query);
     printf("Query Results = %s<br />\n", $db->num_rows());
     echo "\n</div>\n  <div class='modal-footer'>\n<a href='#' class='btn' data-dismiss='modal'>Close</a>";
-    echo "    <a href='#' class='btn btn-primary'>Save changes</a>\n </div>\n</div>";
+    echo "     </div>\n</div>";
     echo " <script>$('#QueryStats').modal();</script>";
-    echo "<br />";
+    echo "<a class='btn' href=\"".$sess->self_url().$sess->add_query(array("cmd"=>"Add"))."\">Add New Device</a>\n";
+    echo "<hr />";
 
     // Dump the results (tagged as CSS class default)
     $t->show_result($db, "default");
