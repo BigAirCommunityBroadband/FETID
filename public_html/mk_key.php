@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set("Australia/Sydney");
 // Fill in data for the distinguished name to be used in the cert
 // You must change the values of these keys to match your name and
 // company, or more precisely, the name and company of the person/site
@@ -16,6 +17,7 @@ $dn = array(
     "commonName" => "Router Admin DB",
     "emailAddress" => "dave@bacb.com.au"
 );
+$pass = md5(date("r").serialize($dn));
 
 // Generate a new private (and public) key pair
 $privkey = openssl_pkey_new();
@@ -25,7 +27,7 @@ $csr = openssl_csr_new($dn, $privkey);
 
 // You will usually want to create a self-signed certificate at this
 // point until your CA fulfills your request.
-// This creates a self-signed cert that is valid for 365 days
+// This creates a self-signed cert that is valid for 10 years
 $sscert = openssl_csr_sign($csr, null, $privkey, 3650);
 
 // Now you will want to preserve your private key, CSR and self-signed
@@ -37,13 +39,14 @@ $sscert = openssl_csr_sign($csr, null, $privkey, 3650);
 // you with the "real" certificate.
 openssl_csr_export($csr, $csrout) and var_dump($csrout);
 openssl_x509_export($sscert, $certout) and var_dump($certout);
-openssl_pkey_export($privkey, $pkeyout, "mypassword") and var_dump($pkeyout);
+openssl_pkey_export($privkey, $pkeyout, $pass) and var_dump($pkeyout);
 
 $key_file = "keys.php";
 if (file_exists($key_file)) echo "$key_file already exists, cowardly refusing to overwrite\n";
 else if ($fp=fopen($key_file,"w")) {
 	echo "creating $key_file\n";
-	fwrite($fp,"<?php \n\n/*\n$csrout\n*/\n\n\$cert=\"$certout\";\n\$key=\"$pkeyout\";\n\n\?\>\n");
+	fwrite($fp,"<?php \n\n/*\n$csrout\n*/\n\n\$cert=\"$certout\";\n\$key=\"$pkeyout\";\n\n");
+	fwrite($fp,"\$PublicKey = openssl_get_publickey(\$cert);\n\$PrivateKey = openssl_get_privatekey(\$key,\"$pass\");\n\n?>");
 	fclose($fp);
 }
 // Show any errors that occurred here
