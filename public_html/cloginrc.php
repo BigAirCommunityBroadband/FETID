@@ -1,10 +1,14 @@
 <?php
-include ("/usr/share/phplib/db_pdo.inc");   # PHP Database Objects, PHPLIB style 
+
+$path = "/var/lib/rancid/.cloginrc-%s"; 	# %s = Section
+
+include ("/usr/share/phplib/db_pdo.inc");	# PHP Database Objects, PHPLIB style 
+
 class DB_rancid extends DB_Sql {
   var $Host     = "localhost";
   var $Database = "rancid";
   var $User     = "rancid";
-  var $Password = "rancid";
+  var $Password = "cFa478w79VvQ5ved";
 }
 $db = new DB_rancid;
 
@@ -17,38 +21,39 @@ function escape($str) {
 	$str = str_replace("}","\}",$str);
 	return "{".$str."}";
 }
-if (!$fp = fopen(".cloginrc","w")) {
-	die("Can't write file");
-} else {
-	$db->query("SELECT * FROM devices ORDER BY section, hostname, username");
-	$last = "";
-	while ($db->next_record()) {
-		extract($db->Record);
-		$ucname = strtoupper($section);
-		$passwd = escape(decrypt($passwd));
-		$en_passwd = escape(decrypt($en_passwd));
-		$username = escape($username);
-		if ($ucname<>$last) {
-			fwrite($fp,"\n#### $ucname section ####\n");
-		}
-		if ($login_type=="ssh") {
-			fwrite($fp,"add user $hostname $username\n");
-			fwrite($fp,"add method $hostname ssh\n");
-			fwrite($fp,"add password $hostname $passwd $en_passwd\n");
-		}
-		if ($login_type=="telnet") {
-			if (($username) and ($username<>"none")) {
-				fwrite($fp,"add user $hostname $username\n");
-				fwrite($fp,"add password $hostname $passwd $en_passwd\n");
-			} else {
-				fwrite($fp,"add password $hostname $passwd $en_passwd\n");
-			}
-		}
-		if ($timeout>0) fwrite($fp,"add timeout $hostname {$timeout}\n");
-		if ($no_enable=='Yes') fwrite($fp,"add autoenable $hostname {1}\n");
-		fwrite($fp,"#---\n");
-		$last = $ucname;
+$db->query("SELECT * FROM devices ORDER BY section, hostname, username");
+$last = "";
+$fp = false;
+while ($db->next_record()) {
+	extract($db->Record);
+	$ucname = strtoupper($section);
+	$esc_passwd = escape(decrypt($passwd));
+	$esc_en_passwd = escape(decrypt($en_passwd));
+	$esc_username = escape($username);
+	if ($ucname<>$last) {
+		if ($fp) fclose($fp);
+		$file = sprintf($path,$ucname);
+		if (!$fp = fopen($file,"w")) die("Can't write file $file\n");
+		fwrite($fp,"\n#### $ucname section ####\n");
 	}
-	fclose($fp);
+	fwrite($fp,"# $comments\n");
+	if ($login_type=="ssh") {
+		fwrite($fp,"add method   $hostname ssh\n");
+	}
+	if (($username) and ($username<>"none")) {
+		fwrite($fp,"add user     $hostname $esc_username\n");
+	}
+	if ($en_passwd) {
+		fwrite($fp,"add password $hostname $esc_passwd $esc_en_passwd\n");
+	} else {
+		if ($passwd) {
+			fwrite($fp,"add password $hostname $esc_passwd\n");
+		}
+	}
+	if ($timeout>0) fwrite($fp,"add timeout  $hostname {$timeout}\n");
+	if ($no_enable=='Yes') fwrite($fp,"add noenable $hostname {1}\n");
+	fwrite($fp,"#---\n");
+	$last = $ucname;
 }
+fclose($fp);
 ?>

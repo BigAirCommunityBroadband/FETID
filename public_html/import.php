@@ -3,9 +3,10 @@
 // set the groupname and path to import
 $GroupToImport = "BACB";
 
-#$path = "/home/rancid/%s/router.db";
-$path = "%s.db";
-$password_file = ".cloginrc";  #put full path if not in current dir
+$path = "/var/lib/rancid/%s/router.db";
+$password_file = "/var/lib/rancid/.cloginrc";  #put full path if not in current dir
+$mode = "REPLACE";  # allow overwite;
+#$mode = "INSERT";  # do NOT overwrite;
 
 include ("/usr/share/phplib/db_pdo.inc");   # PHP Database Objects, PHPLIB style 
 
@@ -13,7 +14,7 @@ class DB_rancid extends DB_Sql {
   var $Host     = "localhost";
   var $Database = "rancid";
   var $User     = "rancid";
-  var $Password = "rancid";
+  var $Password = "cFa478w79VvQ5ved";
 }
 
 class Router {
@@ -33,6 +34,7 @@ class Router {
 }
 
 function encrypt($str) {
+	if (!$str) return "";
         include("../keys.php");
 	return openssl_public_encrypt($str,$encrypted,$PublicKey,OPENSSL_PKCS1_OAEP_PADDING) ? base64_encode($encrypted) : "";
 }
@@ -62,20 +64,26 @@ while (!feof($fp)) {
 }
 fclose($fp);
 
-
 if (!$fp=fopen($password_file,"r")) die("Can't open password file");
 
 function read_file($fp) {
     global $routers, $includes;
+    if (!$fp) return;
+    $comment = "";
     while (!feof($fp)) {
 	$line = trim(fgets($fp,1000));
-	if (strlen($line)>3 and substr($line,0,1)<>"#") {
+	if (substr($line,0,1)=="#") {
+	    # keep last comment line
+	    $comment = trim(substr($line,1));
+	} else if (strlen($line)>3) {
 	    # convert line to words and add a few empty ones on the end so we'll have enough words.
+	    $line = str_replace("\t"," ",$line);
+	    $line = preg_replace('/\s\s+/', ' ', $line);
 	    $words = explode(" ",$line) + Array(null,null,null,null,null);
-	    foreach($words as $word) {
+	    foreach($words as $that=>$word) {
 		if (substr($word,0,1)=="{") { #starts with {
 		    if (substr($word,-1)=="}") {  #ends with }
-			$word = substr($word,1,-1); #take the middle bit
+			$words[$that] = substr($word,1,-1); #take the middle bit
 		    } else {
 			die("ugly, write more code to handle escaped {}");
 		    }
@@ -94,10 +102,11 @@ function read_file($fp) {
 		    if (array_key_exists($hostname,$routers)) {  # switch on keyword only if known router
 		        switch ($keyword) {
 			    case "autoenable":
+			    case "noenable":
 				$routers[$hostname]->autoenable = $param1;
 				break;
 			    case "method":
-				$routers[$hostname]->login_type = $param1;
+				$routers[$hostname]->method = $param1;
 				break;
 			    case "user":
 				$routers[$hostname]->user = $param1;
@@ -115,7 +124,10 @@ function read_file($fp) {
 			    default: 
 				echo "don't understand keyword '$keyword' in directive '$line'\n";	
 		        }
-		    } else echo "Unknown router $hostname\n";
+			if ($comment and empty($routers[$hostname]->comment)) $routers[$hostname]->comment = $comment;
+		    } else {
+			# Not importing $hostname at this time.
+		    }
 	    }
 	}
     }
@@ -124,17 +136,21 @@ function read_file($fp) {
 }
 
 while (read_file($fp)) {
-	$fp=fopen(array_pop($includes),"r");
+	$next_file = array_pop($includes);
+	if (!$fp=fopen($next_file,"r")) echo "failed to open $next_file\n";
 }
 
 #now we've got all the data, let's put it in the database
 $db = new DB_rancid;
-if ($st = $db->prepare("INSERT INTO devices 
+
+$db->query("$mode INTO sections (section) VALUES ('$GroupToImport')"); #make sure section exists.
+
+if ($st = $db->prepare("$mode INTO devices 
 		(hostname,section,type,login_type,username,passwd,en_passwd,no_enable,ssh_cmd,timeout,state,comments) 
 			VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")) {
 
 	foreach ($routers as $hostname => $r) {
-		$data = array( $hostname,$GroupToImport,$r->device_type,$r->login_type,$r->user,encrypt($r->passwd),encrypt($r->en_passwd),
+		$data = array( $hostname,$GroupToImport,$r->device_type,$r->method,$r->user,encrypt($r->passwd),encrypt($r->en_passwd),
 				$r->get_auto_enable(),$r->ssh_cmd,$r->timeout,$r->state,$r->comment);
 		if (!$st->execute($data)) {
 			$err = $st->errorInfo();

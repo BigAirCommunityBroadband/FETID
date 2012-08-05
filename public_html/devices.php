@@ -118,8 +118,8 @@ if (window.opener) {
 	$f->find_values($id);
 	#set (again) fields to be same as actual database field
 	#$f->form_data->elements["passwd"]["ob"]->value[1]
-	$passwd[1]= $passwd[0];
-	$en_passwd[1]= $en_passwd[0];
+	$passwd[1] = $passwd[0];
+	$en_passwd[1] = $en_passwd[0];
     } else {
 	include("search.php");
     }
@@ -135,13 +135,17 @@ switch ($cmd) {
     case "Delete":
 	$f->freeze();
     case "Add":
-
+	echo "<font class='bigTextBold'>$cmd Devices</font>\n";
+	$f->display();
+	$f->showChildRecords();
+	break;
     case "Copy":
 	if ($cmd=="Copy") $id="";
     case "Edit":
 	echo "<font class='bigTextBold'>$cmd Devices</font>\n";
+	$passwd[1] = $passwd[0] = "";		# blank these out, so a new one can be entered
+	$en_passwd[1] = $en_passwd[0] = "";
 	$f->display();
-	if ($orig_cmd=="View") $f->showChildRecords();
 	break;
     default:
 	$cmd="Query";
