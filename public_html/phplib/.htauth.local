@@ -29,8 +29,8 @@ $_ENV["footer"] = "foot.inc";  #eg "foot.inc";	   /* html footer file to output 
 class DB_rtrmin extends DB_Sql {
   var $Host     = "localhost";
   var $Database = "rancid";
-  var $User     = "root";
-  var $Password = "all2hard4u";
+  var $User     = "rancid";
+  var $Password = "cFa478w79VvQ5ved";
   var $Server   = "mysql";
   var $charset  = "utf8";
 }

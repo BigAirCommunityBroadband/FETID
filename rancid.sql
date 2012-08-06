@@ -213,3 +213,69 @@ CREATE TABLE IF NOT EXISTS `session_stats` (
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+-- phpMyAdmin SQL Dump
+-- version 3.5.1
+-- http://www.phpmyadmin.net
+--
+-- Host: localhost
+-- Generation Time: Aug 06, 2012 at 01:30 PM
+-- Server version: 5.2.12-MariaDB-mariadb115-log
+-- PHP Version: 5.3.3
+
+SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+
+--
+-- Database: `rancid`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `menu`
+--
+
+CREATE TABLE IF NOT EXISTS `menu` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `parent` int(11) NOT NULL DEFAULT '0',
+  `position` int(11) NOT NULL,
+  `title` varchar(40) NOT NULL DEFAULT '',
+  `target` varchar(255) NOT NULL DEFAULT '',
+  `header` varchar(80) DEFAULT '',
+  `subnavhdr` varchar(20) DEFAULT '',
+  `HtmlTitle` varchar(255) DEFAULT '',
+  `MetaData` text,
+  `view_requires` varchar(255) DEFAULT '',
+  `edit_requires` varchar(255) DEFAULT '',
+  `LongDescription` varchar(80) DEFAULT '',
+  `HelpText` mediumtext,
+  `width` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `parent` (`parent`,`position`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=340 ;
+
+--
+-- Dumping data for table `menu`
+--
+
+INSERT INTO `menu` (`id`, `parent`, `position`, `title`, `target`, `header`, `subnavhdr`, `HtmlTitle`, `MetaData`, `view_requires`, `edit_requires`, `LongDescription`, `HelpText`, `width`) VALUES
+(329, 0, 10, 'Home', 'index.html', '', '', '', '<meta name=''keywords'' content='''' />\r\n<meta name=''description'' content='''' />\r\n<meta http-equiv=''Content-type'' content=''text/html;charset=UTF-8'' />\r\n', '', '', '', '', 143),
+(331, 0, 20, 'Devices', 'devices.php', '', '', '', '<meta name=''keywords'' content='''' />\n<meta name=''description'' content='''' />\n<meta http-equiv=''Content-type'' content=''text/html;charset=UTF-8'' />\n', '', '', '', '', 205),
+(332, 0, 30, 'Types', 'menu', '', '', '', '<meta name=''keywords'' content='''' />\n<meta name=''description'' content='''' />\n<meta http-equiv=''Content-type'' content=''text/html;charset=UTF-8'' />\n', '', '', '', '', 164),
+(333, 332, 10, 'Login Types', 'login_types.php', '', '', '', '<meta name=''keywords'' content='''' />\n<meta name=''description'' content='''' />\n<meta http-equiv=''Content-type'' content=''text/html;charset=UTF-8'' />\n', '', '', '', '', 0),
+(334, 332, 20, 'Device Types', 'device_types.php', '', '', '', '<meta name=''keywords'' content='''' />\n<meta name=''description'' content='''' />\n<meta http-equiv=''Content-type'' content=''text/html;charset=UTF-8'' />\n', '', '', '', '', 0),
+(335, 0, 90, 'Log Out', 'logout.php', '', '', '', '<meta name=''keywords'' content='''' />\n<meta name=''description'' content='''' />\n<meta http-equiv=''Content-type'' content=''text/html;charset=UTF-8'' />\n', '', '', '', '', 205),
+(336, 0, 70, 'Admin', 'menu', '', '', '', '<meta name=''keywords'' content='''' />\n<meta name=''description'' content='''' />\n<meta http-equiv=''Content-type'' content=''text/html;charset=UTF-8'' />\n', '', '', '', '', 164),
+(337, 336, 10, 'Manage Logins', 'password.php', '', '', '', '<meta name=''keywords'' content='''' />\n<meta name=''description'' content='''' />\n<meta http-equiv=''Content-type'' content=''text/html;charset=UTF-8'' />\n', '', '', '', '', 0),
+(338, 336, 20, 'Menu Editor', 'MenuEditor.php', '', '', '', '<meta name=''keywords'' content='''' />\n<meta name=''description'' content='''' />\n<meta http-equiv=''Content-type'' content=''text/html;charset=UTF-8'' />\n', '', '', '', '', 0),
+(339, 336, 30, 'Sections', 'sections.php', '', '', '', '<meta name=''keywords'' content='''' />\n<meta name=''description'' content='''' />\n<meta http-equiv=''Content-type'' content=''text/html;charset=UTF-8'' />\n', '', '', '', '', 0);
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

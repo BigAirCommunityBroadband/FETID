@@ -10,7 +10,7 @@ allow from all
 order deny,allow
 deny from all
 </Limit>
-AuthName phplib.github.com
+AuthName rtrmin.local
 
 <IfModule mod_rewrite.c>
 RewriteEngine On
