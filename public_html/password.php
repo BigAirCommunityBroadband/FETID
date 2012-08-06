@@ -1,12 +1,4 @@
 <?php
-include('phplib/prepend.php');
-$nav = "pass";
-page_open(array("sess"=>$_ENV["SessionClass"],"auth"=>$_ENV["AuthClass"],"perm"=>$_ENV["PermClass"]));
-$db = new $_ENV["DatabaseClass"];
-
-if ($perm->have_perm("guest")) {
-	echo "<big>Guest user cannot change password.</big>";
-} else {
 $debug=0;
 /*
  * Session Management for PHP
@@ -43,13 +35,26 @@ $debug=0;
  *
  */
  
+// include this if you're not using the autoprepend feature
+include('phplib/prepend.php');
 
+## straight from the examples...
 
+get_request_values("Field,letter,username,password,perms,u_id");
+if ($Field) {
+        page_open(array("sess"=>$_ENV["SessionClass"],"auth"=>$_ENV["AuthClass"],"perm"=>$_ENV["PermClass"],"silent"=>"silent"));
+	include("pophead.ihtml");
+} else
+   	page_open(array("sess"=>$_ENV["SessionClass"],"auth"=>$_ENV["AuthClass"],"perm"=>$_ENV["PermClass"]));
+
+## Set this to something, just something different...
    $hash_secret = "Jabberwocky...";
 
 ###
 ### Utility functions
 ###
+
+check_view_perms();
 
 ## my_error($msg):
 ##
@@ -57,7 +62,7 @@ $debug=0;
 
   function my_error($msg) {
 ?>
-  <table border=0 class=default align="center" cellspacing=0 cellpadding=4 width=540>
+  <table border=0 bgcolor="#eeeeee" align="center" cellspacing=0 cellpadding=4 width=540>
    <tr>
     <td><font color=#FF2020>Error: <?php print $msg ?></font></td>
    </tr>
@@ -71,7 +76,7 @@ $debug=0;
 ## Display success messages
   function my_msg($msg) {
 ?>
- <table border=0 class=default align="center" cellspacing=0 cellpadding=4 width=540>
+ <table border=0 bgcolor="#eeeeee" align="center" cellspacing=0 cellpadding=4 width=540>
   <tr>
    <td><font color=#008000>O.K.: <?php print $msg ?></font></td>
   </tr>
@@ -82,14 +87,16 @@ $debug=0;
 
 
 ?>
-<html>
- <head>
-<!--
-// here i include my personal meta-tags; one of those might be useful:
-// <META HTTP-EQUIV="REFRESH" CONTENT="<?php print $auth->
-lifetime*60;?>; URL=logoff.html"> // 
-<?php include($_ENV["libdir"] . "meta.inc");?>
---> <font class="bigTextBold"> </font> 
+  <style type="text/css">
+  <!--
+    body { font-family: Arial, Helvetica, sans-serif }
+    td   { font-family: Arial, Helvetica, sans-serif }
+    th   { font-family: Arial, Helvetica, sans-serif }
+  -->
+  </style>
+<?php if ($perm->have_perm("admin")) $txt = "Web Access Administration"; else $txt = "Change Password"; ?>
+<p><font class=bigTextBold>&nbsp;<?=$txt?></font></p>
+
 <?php
 
 ###
@@ -97,13 +104,17 @@ lifetime*60;?>; URL=logoff.html"> //
 ###
 
 ## Get a database connection
+$db = new $_ENV["DatabaseClass"];
+
+$QUERY_STRING="";
 
 // Check if there was a submission
 while (is_array($_POST) 
 		  && list($key, $val) = each($_POST)) {
-	if(debug == 1) {
+	if($debug == 1) {
 		printf("key +$key+, val +$val+<br>");
 	}
+	check_edit_perms();
 	switch ($key) {
 		case "create": // Create a new user
 			if (!$perm->have_perm("admin")) { // Do we have permission to do so?
@@ -124,6 +135,7 @@ while (is_array($_POST)
 			// Create a uid and insert the user...
 			$u_id=md5(uniqid($hash_secret));
 			$permlist = addslashes(implode($perms,","));
+			$password = hash_auth($username,$password);
 			$query = "insert into auth_user values('$u_id','$username','$password','$permlist')";
 			$db->query($query);
 			if ($db->affected_rows() == 0) {
@@ -131,6 +143,11 @@ while (is_array($_POST)
 				break;
 			}
 			my_msg("User \"$username\" created.<BR>");
+			$url=$sess->url("userinfo.php");
+			$url.=$sess->add_query(array("cmd"=>"Add","UserName"=>$username,"Password"=>$password,"Field"=>$Field));
+			echo "<a href=$url>Enter User Details</a>";
+			echo "<META HTTP-EQUIV=REFRESH CONTENT=\"1; URL=$url\">";
+			
 			break;
 
 		case "u_edit": // Change user parameters
@@ -138,6 +155,8 @@ while (is_array($_POST)
 				printf("u_edit, u_id +%s+<br>", $u_id);
 			if (!$perm->have_perm("admin")) {    // user is not admin
 				if($auth->auth["uid"] == $u_id) { // user changes his own account
+				   if($password) {
+					$password = hash_auth($username,$password);
 					$query = "update auth_user set password='$password' where user_id='$u_id'";
 					$db->query($query);
 					if ($db->affected_rows() == 0) {
@@ -145,21 +164,25 @@ while (is_array($_POST)
 						break;
 					}
 					my_msg("Password of ". $auth->auth["uname"] ." changed.<BR>");
+				    }
+				} else { 
+					my_error("You do not have permission to change users.");
 				}
 			} else { // user is admin
-				if (empty($username) || empty($password)) { // Do we have all necessary data?
-					my_error("Please fill out <B>Username</B> and <B>Password</B>!");
+				if (empty($username)) { // Do we have all necessary data?
+					my_error("Please fill out <b>Username</b>!");
 					break;
 				}
 				// Update user information.
 				$permlist = addslashes(implode($perms,","));
-				$query = "update auth_user set username='$username', password='$password', perms='$permlist' where user_id='$u_id'";
+				if (!empty($password)) $passquery = "password='".hash_auth($username,$password)."',"; else $passquery="";
+				$query = "update auth_user set username='$username', $passquery  perms='$permlist' where user_id='$u_id'";
 				$db->query($query);
 				if ($db->affected_rows() == 0) {
 					my_error("<b>Failed:</b> $query");
 					break;
 				}
-				my_msg("User \"$username\" changed.<BR>");
+				my_msg("User \"$username\" changed.<br />");
 			}
 			break;
 
@@ -175,11 +198,11 @@ while (is_array($_POST)
 				my_error("<b>Failed:</b> $query");
 				break;
 			}
-			my_msg("User \"$username\" deleted.<BR>");
+			my_msg("User \"$username\" deleted.<br />");
 			break;
 
 		default:
-			if(debug == 1)
+			if($debug == 1)
 				printf("default switch: u_id: .$u_id. <br>");
 			break;
 	}
@@ -189,8 +212,49 @@ while (is_array($_POST)
 	information, if we come here after a submission...
 */
 
-function showPassRecord($db) {
-global $sess, $perm;
+?>
+<table border=0 bgcolor="#eeeeee" align="center" cellspacing=2 cellpadding=4 width=540>
+ <tr valign=top align=left class=toplink>
+  <th>Username</th>
+  <th>Password</th>
+  <th>Level</th>
+  <th align=right>Action</th>
+ </tr>
+<?php 
+
+  if ($perm->have_perm("admin")): 
+
+ ?>
+ <!-- create a new user -->
+ <form method="post" action="<?php $sess->pself_url() ?>">
+ <input type="hidden" value='<?php echo $Field; ?>' name="Field">
+ <tr valign=middle align=left>
+  <td><input type="text" name="username" size=12 maxlength=64 value=""></td>
+  <td><input type="text" name="password" size=12 maxlength=32 value=""></td>
+  <td><?php print $perm->perm_sel("perms","user");?></td>
+  <td align=right><input type="submit" name="create" value="Create User"></td>
+ </tr>
+ </form>
+<?php
+
+  endif;
+
+  if (!$letter) $letter="0";
+  
+  ## Traverse the result set
+  if ($perm->have_perm("admin")) {
+	$QUERY_STRING="";
+	if ($letter!='all') $cond = "where username like '".$letter."%'"; else $cond="";
+	$db->query("select * from auth_user $cond order by username");
+	echo "<tr><td align=center colspan=4><table><tr>\n";
+	for ($l = 97 ; $l<=122; $l++) 
+		echo "<td><a href=".$sess->self_url().$sess->add_query(array("letter"=>chr($l))).">".chr($l)."</a></td>\n";
+	echo "<td><a href=".$sess->self_url().$sess->add_query(array("letter"=>"all")).">all</a></td>\n";
+	echo "</tr></table></td></tr>\n";
+  }
+  else  $db->query("select * from auth_user where username='".$auth->auth["uname"]."'");
+  while ($db->next_record()):
+
 ?>
               <!-- existing user -->
               <form method="post" action="<?php $sess->pself_url() ?>">
@@ -198,96 +262,45 @@ global $sess, $perm;
                   <?php
   if ($perm->have_perm("admin")):
  ?>
-                  <td><input type="text" name="username" size=12 maxlength=32 value="<?php $db->p("username") ?>"></td>
-                  <td><input type="text" name="password" size=12 maxlength=32 value="<?php $db->p("password") ?>"></td>
-                  <td><?php print $perm->perm_sel("perms", $db->f($table."perms")) ?></td>
+                  <td><input type="text" name="username" size=12 maxlength=64 value="<?php $db->p("username") ?>"></td>
+                  <td><input type="password" name="password" size=12 maxlength=32 value=""></td>
+                  <td><?php print $perm->perm_sel("perms", $db->f("perms")) ?></td>
                   <td align=center> <input type="hidden" name="u_id"   value="<?php $db->p("user_id") ?>">
-                        <input type="submit" name="u_edit" value="Change">
-                        <input type="submit" name="u_kill" value="Kill">
+                    <input type="submit" name="u_kill" value="Kill"> <input type="submit" name="u_edit" value="Change">
                   </td>
                   <?php
-  elseif (strtolower($auth->auth["uname"]) == strtolower($db->f("a.username"))):
- ?>
-                  <td>
-		    <input type="hidden" name="username"   value="<?php $db->p("username") ?>">
+  elseif (strtolower($auth->auth["uname"]) == strtolower($db->f("username"))):
+ ?>     
+                  <td> 
                     <?php $db->p("username") ?>
                   </td>
-                  <td><input type="password" name="password" size=12 maxlength=32 value="<?php $db->p("password") ?>"></td>
-                  <td>
+                  <td><input type="password" name="password" size=12 maxlength=32 value=""></td>
+                  <td> 
                     <?php $db->p("perms") ?>
                   </td>
                   <td align=right> <input type="hidden" name="u_id"   value="<?php $db->p("user_id") ?>">
                     <input type="submit" name="u_edit" value="Change"> </td>
                   <?php else: ?>
-                  <!--  <td><?php $db->p($table."username") ?>
+                  <!--  <td><?php $db->p("username") ?>
                   <td>**********</td>
-                  <td>
-                    <?php $db->p($table."perms") ?>
+                  <td> 
+                    <?php $db->p("perms") ?>
                   </td>
                   <td align=right>&nbsp;</td>
-                  -->
+                  --> 
                   <?php
- endif;
- ?>
+ endif;           
+ ?>             
                 </tr>
               </form>
               <?php
-}
 
-
+  endwhile;
 ?>
-<table border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <td><font class="bigTextBold">Change Password</font> <br>
-      <br>
-      <table border="0" class=btable cellspacing="0" cellpadding="4">
-        <tr> 
-          <td><table width=540 border=0 align="center" cellpadding=4 cellspacing=0 bordercolor="#D2D2E5" bgcolor="#FFFFFF">
-              <tr valign=top align=left> 
-                <th>Username</th>
-                <th>Password</th>
-                <th>Level</th>
-                <th align=right>Action</th>
-              </tr>
-              <?php 
-
-  if ($perm->have_perm("admin")) {
-
- ?>
-              <!-- create a new user -->
-              <form method="post" action="<?php $sess->pself_url() ?>">
-                <tr valign=middle align=left> 
-                  <td><input type="text" name="username" size=12 maxlength=32 value=""></td>
-                  <td><input type="text" name="password" size=12 maxlength=32 value=""></td>
-                  <td><?php print $perm->perm_sel("perms","user");?></td>
-                  <td align=center><input type="submit" name="create" value="Create User"></td>
-                </tr>
-              </form>
-          <?php
-
-	  if (!$letter) $letter="0";
-
-	  $QUERY_STRING="";
-	  $db->query("select a.* from auth_user a where username like '".$letter."%'order by username");
-	  echo "<tr><td align=center colspan=4><table><tr>\n";
-	  for ($l = 97 ; $l<=122; $l++)
-		echo "<td><a href=".$sess->self_url().$sess->add_query(array("letter"=>chr($l))).">".chr($l)."</a></td>\n";
-		echo "<td><a href=".$sess->self_url().$sess->add_query(array("letter"=>"%")).">".all."</a></td>\n";
-  	  echo "</tr></table></td></tr>\n";
-   } else 
-	$db->query("select a.* from auth_user a where username='".strtolower($auth->auth["uname"])."'"); 
-	## Traverse the result set
-  	while ($db->next_record()):
-		showPassRecord($db);
-  	endwhile;
-	echo "\n<tr><td colspan=4>&nbsp;</td></tr>\n";
-?>
-            </table></td>
-        </tr>
-      </table></td>
-  </tr>
 </table>
+<br>
 <?php
-}
-page_close();
+  page_close();
 ?>
+</body>
+</html>

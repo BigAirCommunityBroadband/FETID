@@ -8,6 +8,7 @@ if (!empty($_ENV["view_requires"])) {
 } else {
     page_open(array("sess"=>$_ENV["SessionClass"]));
 }
+require_once($_ENV["libdir"]."template.inc");
 $html = new Template($_ENV["local"]."/templates","comment");
 
 if ($page) {
