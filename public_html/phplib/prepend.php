@@ -23,24 +23,27 @@ setlocale(LC_ALL, 'en_AU.UTF-8');
 date_default_timezone_set("Australia/Sydney");
 $js="";
 
-$testip = "129.168.1.100"; // NPD
+$testip = "203.26.11.96"; // NPD
 $REMOTE_ADDR = @$_SERVER["REMOTE_ADDR"];
-if (($REMOTE_ADDR==$testip) or ($REMOTE_ADDR=="124.191.215.55") or (@$_ENV["SiteRoot"] == "/var/www/hsdev/public_html/")) { 
+$DOCUMENT_ROOT = $_SERVER["DOCUMENT_ROOT"];
+if (($REMOTE_ADDR==$testip) or ($REMOTE_ADDR=="58.174.77.127")) { 
  	$dev=true; 
 } else {
  	$dev=false;
 }
-$dev=true;
+if (array_pop(explode(".",$_SERVER["HTTP_HOST"]))=="local") $dev=true;
+if ($DOCUMENT_ROOT == "/var/www/portal/public_html") $dev=false;
 if ($dev) {
 	ini_set('display_errors', 'On');
 	if (array_key_exists("HTTP_HOST",$_SERVER)) ini_set('html_errors', 'On');
 	else ini_set('html_errors', 'Off');
 	ini_set('docref_root','http://au.php.net/manual/en/');
-	error_reporting(E_ALL^E_NOTICE); 	// will report all errors
+	error_reporting(E_ALL^(E_STRICT|E_NOTICE));
+	error_fatal(E_ALL^(E_STRICT|E_NOTICE));
 	set_error_handler('my_error_handler');
 } else {
-	error_reporting(E_ALL^E_NOTICE);	// will report all errors
-	error_fatal(E_ALL^E_NOTICE);		// will die on any error except E_NOTICE
+	error_reporting(E_ALL & ~(E_STRICT|E_NOTICE));
+	error_fatal(E_ALL & ~(E_STRICT|E_NOTICE));
 	ini_set('display_errors', 'Off');
 	set_error_handler('my_error_handler');
 }
@@ -55,7 +58,6 @@ $_page_start_time = $time;
 
 if (array_key_exists("widemode",$_REQUEST)) $GLOBALS["widemode"]=$_REQUEST["widemode"];
 
-$DOCUMENT_ROOT = $_SERVER["DOCUMENT_ROOT"];
 get_request_values("id,cmd,submit,rowcount,sortorder,sortdesc,startingwith,start,prev,next,last,cond,EditMode,WithSelected,widemode,Field,_http_referer,export_results");
 $orig_cmd=$cmd;
 $PWD = array_key_exists("PWD",$_SERVER) ? $_SERVER["PWD"] : "";
@@ -78,21 +80,18 @@ require($_ENV["libdir"] . "auth.inc");      /* Disable this, if you are not usin
 require($_ENV["libdir"] . "perm.inc");      /* Disable this, if you are not using permission checks. */
 require($_ENV["libdir"] . "user.inc");      /* Disable this, if you are not using user variables. */
 #require($_ENV["libdir"] . "cart.inc");      /* Disable this, if you are not using the shopping cart. */
-class My_Cart { function start() {} };		/* Disable this, if you are using the shopping cart */
+class My_Cart { function start() {}  function reset() {} };		/* Disable this, if you are using the shopping cart */
 
 /* Additional require statements go below this line */
 include($_ENV["libdir"] . 'oohforms.inc');
 include($_ENV["libdir"] . 'tpl_form.inc');
 include($_ENV["libdir"] . 'table.inc');
 include($_ENV["libdir"] . 'sqlquery.inc');
-include($_ENV["libdir"] . 'template.inc');
-
 
 /* Additional require statements go before this line */
 
 #require($_ENV["local"] . "My_Cart.inc");	/* Disable this, if you are not using the shopping cart. */
 require($_ENV["local"] . "local.inc");	/* Required, contains your local configuration. */
-require($_ENV["local"] . "menu.inc");
 
 if (file_exists($inc="phplib".substr($PHP_SELF,0,-3)."inc")) include($inc);  /* Include SQL & form class to match this php */
 
@@ -105,6 +104,10 @@ if ($_ENV["editor"]=="fckeditor") include("/usr/share/phplib/fckeditor/fckeditor
 if ($_ENV["editor"]=="ckeditor") include("/usr/share/phplib/ckeditor/ckeditor.php");
 if ($_ENV["editor"]=="ckfinder") include("/usr/share/phplib/ckeditor/ckeditor.php");
 
+if ($_SERVER['HTTP_COOKIE']) { 
+        if (strstr($_SERVER['HTTP_COOKIE'],$_ENV["SessionClass"])===FALSE) unset($modRW);
+        else $modRW = "on";
+} 
 
 function get_request_values($varlist) {
         $vars = explode(",",$varlist);
@@ -125,7 +128,13 @@ function get_request_values($varlist) {
 				}
 			}
                 } else {
-                        if (!isset($GLOBALS[$v])) $GLOBALS[$v]=false;
+			switch($v) {
+			    case "rowcount":
+			    case "sortorder":
+					break;
+			    default:
+                        	if (!isset($GLOBALS[$v])) $GLOBALS[$v]=false;
+			}
                 }
         }
         if (!is_array($GLOBALS[$v])) $GLOBALS["q_".$v]="'".addslashes($GLOBALS[$v])."'";  // can't use database specific yet, not defined.
@@ -141,26 +150,49 @@ function mycallback($classname)
 
 
 function EventLog($Description,$ExtraInfo="",$Level="Info") {
-        global $PHP_SELF, $argv, $REMOTE_ADDR, $auth;
+        if ($Level=="Debug") {
+                if (date("d-M-Y")<>"11-May-2011") return;  // Only debug if date matches.
+        }
+        global $PHP_SELF, $argv, $REMOTE_ADDR, $auth, $action, $dev;
         $db = new $_ENV["DatabaseClass"];
         if ($PHP_SELF) $Program=$PHP_SELF; else $Program = $argv[0];
-        if ($auth) $UserName = $auth->auth["uname"]; else $UserName="NotLoggedIn";
-        $sql = "INSERT DELAYED INTO EventLog SET ";
-        $sql .= "Program = '$Program',";
-        $sql .= "IPAddress = '$REMOTE_ADDR',";
-        $sql .= "UserName = '$UserName',";
-        $sql .= "Description = '".addslashes($Description)."',";
-        $sql .= "Level = '$Level',";
-        $sql .= "ExtraInfo = '".addslashes($ExtraInfo)."'";
-        $db->query($sql);
-} 
+        if ($Program=='/hello.php') $Program=$action;
+        $UserName = "NotLoggedIn";
+        if ($auth) if (array_key_exists("uname",$auth->auth)) $UserName = $auth->auth["uname"];
+        if ($db->type=="pdo") {
+                $stmt = $db->prepare("INSERT INTO EventLog (Program,IPAddress,UserName,Description,Level,ExtraInfo) values (?,?,?,?,?,?)");
+                $stmt->execute(array($Program,$REMOTE_ADDR,$UserName,$Description,$Level,$ExtraInfo));
+                return $db->lastInsertId();
+        } else {
+                if ($Level=='Error') $sql = "INSERT INTO EventLog SET ";
+                else $sql = "INSERT INTO EventLog SET ";
+                $sql .= "Program = '$Program',";
+                $sql .= "IPAddress = '$REMOTE_ADDR',";
+                $sql .= "UserName = ".$db->quote($UserName).",";
+                $sql .= "Description = ".$db->quote($Description).",";
+                $sql .= "Level = '$Level',";
+                $sql .= "ExtraInfo = ".$db->quote($ExtraInfo);
+                switch ($Program) {
+                        case "/hello.php":
+                        #       break;
+                        default:
+                                $db->query($sql);
+                }
+                if ($Level=='Error') {
+                    $db->query("SELECT LAST_INSERT_ID()");
+                    $db->next_record();
+                    return $db->f(0);
+                }
+        }
+
+}
 
 $db = new $_ENV["DatabaseClass"];
 
 function magicquote($str) {   // hangover from addslashes 
 	global $db;
 	if (!$db->connect()) return 0;
-        return substr(substr($db->escape_string($str),1),0,-1);
+        return $db->escape_string($str);
 }
 
 
@@ -187,8 +219,18 @@ switch ($self) {
 	case "template.php":
 		$self = $_REQUEST["page"].".html";
 }
-$db->query("SELECT HtmlTitle, MetaData, view_requires, edit_requires, subnavhdr from menu WHERE target='$self' OR target='/$self' order by id desc");
-if ($db->next_record()) {
+$_ENV["view_requires"] = "";
+$_ENV["edit_requires"] = "";
+$MetaData = "<meta name='keywords' content='' />\n".
+	"<meta name='description' content='' />\n".
+	"<meta http-equiv='Content-type' content='text/html;charset=UTF-8' />\n";
+if ($MenuClass = array_key_exists("MenuTable",$_ENV) ? $_ENV["MenuTable"] : false) {
+    require($_ENV["local"] . "$MenuClass.inc");
+    class MenuPageform extends menuform {
+        var $classname="MenuPageform";
+    }
+    $db->query("SELECT HtmlTitle, MetaData, view_requires, edit_requires, subnavhdr from menu WHERE target='$self' OR target='/$self' order by id desc");
+    if ($db->next_record()) {
 	$HTML_title = stripslashes($db->f(0));
 	$MetaData = stripslashes($db->f(1));
 	$_ENV["view_requires"] = $db->f("view_requires");
@@ -196,12 +238,7 @@ if ($db->next_record()) {
 	$_ENV["subnavhdr"] = $db->f("subnavhdr");
 	// edit perms defaults to the same as view perms when blank.
 	if (!$_ENV["edit_requires"]) $_ENV["edit_requires"] = $_ENV["view_requires"];
-} else {
-	$_ENV["view_requires"] = "";
-	$_ENV["edit_requires"] = "";
-	$MetaData = "<meta name='keywords' content='' />\n".
-		"<meta name='description' content='' />\n".
-		"<meta http-equiv='Content-type' content='text/html;charset=UTF-8' />\n";
+    }
 }
 $self = explode(".",$self);
 if (empty($HTML_title)) $HTML_title = $_ENV["BaseName"]." ".$self[0];
@@ -250,9 +287,6 @@ function array_first_chunk($input,$narrow_chunk_size,$wide_chunk_size) {
         } else return $input;
 }
 
-class MenuPageform extends menuform {
-        var $classname="MenuPageform";
-}
 function MenuPage($page) {
         global $target, $id, $perm, $view_requires, $edit;
         $db = new $_ENV["DatabaseClass"];
@@ -287,61 +321,71 @@ function MenuPage($page) {
 
 function my_error_handler($errno, $errstr, $errfile, $errline, $errcontext) {
     global $dev;
+    static $ErrorCount;
+    if (!isset($ErrorCount)) $ErrorCount=0;
+    $ErrorCount++;
     $errno = $errno & error_reporting();
-    if ((!$dev) and ($errno == 0)) return;
+    if ($errno == 0) return;
     if (error_reporting() === 0) {
         // continue script execution, skipping standard PHP error handler
         return true;
     }
+    if ($ErrorCount==100) die("Too many errors");
+    $self = $_SERVER["PHP_SELF"];
     if(!defined('E_STRICT'))            define('E_STRICT', 2048);
     if(!defined('E_RECOVERABLE_ERROR')) define('E_RECOVERABLE_ERROR', 4096);
-    switch($errno){
-        case E_ERROR:               print "Error";                  break;
-        case E_WARNING:             print "Warning";                break;
-        case E_PARSE:               print "Parse Error";            break;
-        case E_NOTICE:              print "Notice";                 break;
-        case E_CORE_ERROR:          print "Core Error";             break;
-        case E_CORE_WARNING:        print "Core Warning";           break;
-        case E_COMPILE_ERROR:       print "Compile Error";          break;
-        case E_COMPILE_WARNING:     print "Compile Warning";        break;
-        case E_USER_ERROR:          print "User Error";             break;
-        case E_USER_WARNING:        print "User Warning";           break;
-        case E_USER_NOTICE:         print "User Notice";            break;
-        case E_STRICT:              print "Strict Notice";          break;
-        case E_RECOVERABLE_ERROR:   print "Recoverable Error";      break;
-        default:                    print "Unknown error ($errno)"; break;
-    }
-    $msg = "<b>PHP Error:</b> <i>$errstr</i> in <b>$errfile</b> on line <b>$errline</b>\n";
-    $detail = "";
-    if(function_exists('debug_backtrace')){
+    if ($dev) {
+      switch($errno){
+        case E_ERROR:               $ErrType = "Error";                  break;
+        case E_WARNING:             if (!$dev) return true;
+				    $ErrType = "Warning";                break;
+        case E_PARSE:               $ErrType = "Parse Error";            break;
+        case E_NOTICE:              $ErrType = "Notice";                 break;
+        case E_CORE_ERROR:          $ErrType = "Core Error";             break;
+        case E_CORE_WARNING:        $ErrType = "Core Warning";           break;
+        case E_COMPILE_ERROR:       $ErrType = "Compile Error";          break;
+        case E_COMPILE_WARNING:     $ErrType = "Compile Warning";        break;
+        case E_USER_ERROR:          $ErrType = "User Error";             break;
+        case E_USER_WARNING:        $ErrType = "User Warning";           break;
+        case E_USER_NOTICE:         $ErrType = "User Notice";            break;
+        case E_STRICT:              if (!$dev) return true;
+				    $ErrType = "Strict Notice";          break;
+        case E_RECOVERABLE_ERROR:   $ErrType = "Recoverable Error";      break;
+        default:                    $ErrType = "Unknown error ($errno)"; break;
+      }
+      $msg = "<b>PHP Error:</b> <i>$errstr</i> in <b>$errfile</b> on line <b>$errline</b>\n";
+      $detail = "";
+      if(function_exists('debug_backtrace')){
         //print "backtrace:\n";
         $backtrace = debug_backtrace();
         array_shift($backtrace);
         foreach($backtrace as $i=>$l){
-            @$detail .= "[$i] in function <b>{$l['class']}{$l['type']}{$l['function']}</b>";
-            if($l['file']) $detail .= " in <b>{$l['file']}</b>";
-            if($l['line']) $detail .= " on line <b>{$l['line']}</b>";
-            $detail .= "<br>\n";
+            @$detail .= "[$i] in function {$l['class']}{$l['type']}{$l['function']}";
+            if($l['file']) $detail .= " in {$l['file']}";
+            if($l['line']) $detail .= " on line {$l['line']}";
+            $detail .= "\n";
         }
+      }
+      if (isset($php_errormsg)) echo "<h1>$php_errormsg</h1>";
+      if ($ErrorCount<10) {
+      echo "<h3>PHP $ErrType $errstr in $errfile on line $errline</h3><!--\n$detail";
+      ini_set('html_errors', 'Off');
+      var_dump($errcontext);
+      echo "-->";
+      }
     }
-    $self = $_SERVER["PHP_SELF"];
-    if ($dev) {
-	if (isset($php_errormsg)) echo "<h1>$php_errormsg</h1>";
-	echo "<h3>PHP BackTrace for $errstr in $errfile on line $errline</h3>$detail<pre>";
-	var_dump($errcontext);
-    }
-    $error=EventLog($msg,serialize($errcontext),"Error");
+    $error=EventLog($msg,$detail,"Error");
     if ($detail) EventLog("PHP BackTrace for $errstr in $errfile on line $errline",$detail,"Error");
     if(isset($GLOBALS['error_fatal'])){
         if($GLOBALS['error_fatal'] & $errno)
 		if ($self=="api.php") {
-			$xmlstr = "<?xml version='1.0' standalone='yes'?><api><errors></errors></api>";
+			$xmlstr = "<?xml version='1.0' standalone='yes'?><api><errors></errors></api>"; 
 			$xml = new SimpleXMLElement($xmlstr);
 			$xml->errors->addChild("error","Call Support and Quote Event ID $error");
 			echo str_replace("><",">\n<",$xml->asXML());
-			exit;
+			exit; 
 		} else
-                die("<br><br><big><b>Oops, well this is embarrassing! &nbsp; An error has occurred:</b>
+                if (!$dev) die("<br><br><big><b>Oops, well this is embarrassing! &nbsp; An error has occurred:</b>
                         <br>Please quote <b>Event ID $error</b> if calling helpdesk on 1300 739 822 from 9am to 8pm</big>");
     }
 }
@@ -392,4 +436,5 @@ function show_audit_trail($id,$table='') {
         }
 }
 
+include($_ENV["local"] . 'application.inc');
 ?>
