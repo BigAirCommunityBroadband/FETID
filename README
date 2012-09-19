@@ -21,11 +21,11 @@ php-process (for phplib autogen)
 
 Description:
 
-This is a simple to use front end for RANCID.  
-It is a full feature content management website with permission controls.
-Database abstraction is provided by PHP Database Objects (PDO).
-So you can use pretty much any database server.
-We have tested with MySQL, and expect it will work on PostGreSQL, SQlite3.
+This is a simple to use front end for RANCID built using the bootstrap framework.  
+It is a fully feature content management website with permission controls.
+Database abstraction is provided by PHP Database Objects (PDO) so you can use
+pretty much any database server. We have tested with MySQL, and expect it will 
+work on PostGreSQL, SQlite3 and others (verifications appreciated).
 
 There is a public/private key generator that must be used to create keys.
 The public key is used by the web site to encrypt all passwords stored
