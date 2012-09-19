@@ -1,0 +1,11 @@
+﻿# Set default behaviour, in case users don't have core.autocrlf set.
+* text=auto
+
+# These files are text and should be normalized (convert crlf => lf)
+*.txt     text
+*.php     text
+*.ihtml   text
+*.inc     text
+*.html    text
+*.local   text
+*.js      text
