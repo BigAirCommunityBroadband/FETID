@@ -41,7 +41,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="#">Router Admin</a>
+          <a class="brand" href="#">FETID</a>
           <div class="nav-collapse">
             <ul class="nav nav-pills">
 
