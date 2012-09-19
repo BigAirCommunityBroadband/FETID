@@ -1,5 +1,4 @@
-
-Router Admin package for rancid
+Front-End To Insert Devices (FETID) web interface for RANCID
 
 Package Requirements
 
@@ -22,7 +21,7 @@ php-process (for phplib autogen)
 
 Description:
 
-This is a simple to use front end for rancid.  
+This is a simple to use front end for RANCID.  
 It is a full feature content management website with permission controls.
 Database abstraction is provided by PHP Database Objects (PDO).
 So you can use pretty much any database server.
@@ -36,7 +35,3 @@ easily but deleting the sql database and re-importing the flat files.
 This way the sql database does not have the actual passwords in it.
 You can create off-site backups of the sql and you only need to keep the
 private keys file seperately.
-
-
-
-
