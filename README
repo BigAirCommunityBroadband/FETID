@@ -35,3 +35,5 @@ easily but deleting the sql database and re-importing the flat files.
 This way the sql database does not have the actual passwords in it.
 You can create off-site backups of the sql and you only need to keep the
 private keys file seperately.
+
+Test edit to confirm CLRF conversion is occurring correctly.
