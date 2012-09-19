@@ -5,7 +5,7 @@ class menuform extends tpl_form {
   var $key = "id";
   var $key_field = "id"; # if different to $key
   var $classname = "menuform";
-  var $database_class = "DB_rtrmin";
+  var $database_class = "DB_fetid";
 
   function setup_fields () {
     $this->form_data->add_element(array("type"=>"hidden","name"=>"id","field"=>"id","size"=>"12"));

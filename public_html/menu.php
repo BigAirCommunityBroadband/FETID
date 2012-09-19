@@ -2,9 +2,9 @@
 include('phplib/prepend.php');
 
 if ($export_results) {
-        page_open(array("sess"=>"rtrmin_Session","auth"=>"rtrmin_Auth","perm"=>"rtrmin_Perm","silent"=>"silent"));
+        page_open(array("sess"=>"fetid_Session","auth"=>"fetid_Auth","perm"=>"fetid_Perm","silent"=>"silent"));
 } else {
-	page_open(array("sess"=>"rtrmin_Session","auth"=>"rtrmin_Auth","perm"=>"rtrmin_Perm"));
+	page_open(array("sess"=>"fetid_Session","auth"=>"fetid_Auth","perm"=>"fetid_Perm"));
 	#if ($Field) include("pophead.ihtml"); else include("head.ihtml");
 	echo "<h1>Menu</h1>";
 	#if (empty($Field)) include("menu.html");
@@ -161,7 +161,7 @@ switch ($cmd) {
 	#$t->checkbox_menu = Array('Print');
 	#$t->check = 'id';  /* Display a column of checkboxes with value of key field*/
 
-	$db = new DB_rtrmin;
+	$db = new DB_fetid;
 
         if (!$export_results) echo "<a href=\"".$sess->self_url().$sess->add_query(array("cmd"=>"Add"))."\">Add</a> Menu\n";
 

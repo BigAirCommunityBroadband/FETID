@@ -5,7 +5,7 @@ class device_typesform extends tpl_form {
   var $key = "device_type";
   var $key_field = "device_type"; # if different to $key
   var $classname = "device_typesform";
-  var $database_class = "DB_rtrmin";
+  var $database_class = "DB_fetid";
 
   function setup_fields () {
     $this->form_data->add_element(array("type"=>"text","name"=>"device_type","maxlength"=>"60","size"=>"20"

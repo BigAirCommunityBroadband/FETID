@@ -5,7 +5,7 @@ class sectionsform extends tpl_form {
   var $key = "section";
   var $key_field = "section"; # if different to $key
   var $classname = "sectionsform";
-  var $database_class = "DB_rtrmin";
+  var $database_class = "DB_fetid";
 
   function setup_fields () {
     $this->form_data->add_element(array("type"=>"text","name"=>"section","maxlength"=>"60","size"=>"20"

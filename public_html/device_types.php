@@ -2,9 +2,9 @@
 include('phplib/prepend.php');
 
 if ($export_results) {
-        page_open(array("sess"=>"rtrmin_Session","auth"=>"rtrmin_Auth","perm"=>"rtrmin_Perm","silent"=>"silent"));
+        page_open(array("sess"=>"fetid_Session","auth"=>"fetid_Auth","perm"=>"fetid_Perm","silent"=>"silent"));
 } else {
-	page_open(array("sess"=>"rtrmin_Session","auth"=>"rtrmin_Auth","perm"=>"rtrmin_Perm"));
+	page_open(array("sess"=>"fetid_Session","auth"=>"fetid_Auth","perm"=>"fetid_Perm"));
 	#if ($Field) include("pophead.ihtml"); else include("head.ihtml");
 	echo "<span class='big'>Device Types</span>";
 	#if (empty($Field)) include("menu.html");
@@ -163,7 +163,7 @@ switch ($cmd) {
 	#$t->checkbox_menu = Array('Print');
 	#$t->check = 'device_type';  /* Display a column of checkboxes with value of key field*/
 
-	$db = new DB_rtrmin;
+	$db = new DB_fetid;
 
 
         if (array_key_exists("device_types_fields",$_REQUEST)) $device_types_fields = $_REQUEST["device_types_fields"];

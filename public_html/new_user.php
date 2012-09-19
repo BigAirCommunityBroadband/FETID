@@ -39,7 +39,7 @@ $debug=0;
 include("prepend.php");
 
 ## straight from the examples...
-   page_open(array("sess" => "rtrmin_Session", "auth" => "rtrmin_Auth", "perm" => "rtrmin_Perm"));
+   page_open(array("sess" => "fetid_Session", "auth" => "fetid_Auth", "perm" => "fetid_Perm"));
 
 ## Set this to something, just something different...
    $hash_secret = "Jabberwocky...";
@@ -105,7 +105,7 @@ include("prepend.php");
 ###
 
 ## Get a database connection
-$db = new DB_rtrmin;
+$db = new DB_fetid;
 
 // Check if there was a submission
 while (is_array($HTTP_POST_VARS) 

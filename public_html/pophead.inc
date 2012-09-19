@@ -10,7 +10,7 @@
 </head>
 <body>
 <div id="Layout">
-  <font class=bigTextBold align="CENTER">rtrmin Database</font>
+  <font class=bigTextBold align="CENTER">fetid Database</font>
   <font class='bigTextBold' align='CENTER'><a href="<?php $sess->purl("sections.php") ?>">Sections</a></font>
   <font class='bigTextBold' align='CENTER'><a href="<?php $sess->purl("devices.php") ?>">Devices</a></font>
   <font class='bigTextBold' align='CENTER'><a href="<?php $sess->purl("login_types.php") ?>">Login Types</a></font>

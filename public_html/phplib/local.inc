@@ -11,24 +11,24 @@
 
 include($_ENV['local'].'/.htauth.local');
 
-class rtrmin_CT_Sql extends CT_Sql {
-  var $database_class = "DB_rtrmin";          ## Which database to connect...
+class fetid_CT_Sql extends CT_Sql {
+  var $database_class = "DB_fetid";          ## Which database to connect...
   var $database_table = "active_sessions"; ## and find our session data in this table.
 }
 
-#class rtrmin_CT_Split_Sql extends CT_Split_Sql {
-#  var $database_class = "DB_rtrmin";         ## Which database to connect...
+#class fetid_CT_Split_Sql extends CT_Split_Sql {
+#  var $database_class = "DB_fetid";         ## Which database to connect...
 #  var $database_table = "active_sessions_split"; ## and find our session data in this table.
 #  var $split_length = 4096                    ## Split rows every 4096 bytes
 #}
 
-#class rtrmin_CT_Shm extends CT_Shm {
+#class fetid_CT_Shm extends CT_Shm {
 #  var $max_sessions   = 500;               ## number of maximum sessions
 #  var $shm_key        = 0x123754;          ## unique shm identifier
 #  var $shm_size       = 64000;             ## size of segment
 #}
 
-#class rtrmin_CT_Ldap extends CT_Ldap {
+#class fetid_CT_Ldap extends CT_Ldap {
 #   var $ldap_host = "localhost";
 #   var $ldap_port = 389;
 #   var $basedn    = "dc=your-domain, dc=com";
@@ -37,36 +37,36 @@ class rtrmin_CT_Sql extends CT_Sql {
 #   var $objclass  = "phplibdata";
 #}
 
-#class rtrmin_CT_Dbm extends CT_DBM {
+#class fetid_CT_Dbm extends CT_DBM {
 #   var $dbm_file  = "must_exist.dbm";
 #}
 
-class rtrmin_Session extends Session {
-  var $classname = "rtrmin_Session";
+class fetid_Session extends Session {
+  var $classname = "fetid_Session";
 
   var $cookiename     = "";                ## defaults to classname
   var $magic          = "Hocuspocus";      ## ID seed
   var $mode           = "cookie";          ## We propagate session IDs with cookies
   var $fallback_mode  = "get";
   var $lifetime       = 0;                 ## 0 = do session cookies, else minutes
-  var $that_class     = "rtrmin_CT_Sql"; ## name of data storage container
+  var $that_class     = "fetid_CT_Sql"; ## name of data storage container
   var $gc_probability = 5;  
   var $auto_init      = "setup.inc";		## comment out to disable session logs.
 }
 
-class rtrmin_User extends User {
-  var $classname = "rtrmin_User";
+class fetid_User extends User {
+  var $classname = "fetid_User";
 
   var $magic          = "Abracadabra";     ## ID seed
-  var $that_class     = "rtrmin_CT_Sql"; ## data storage container
+  var $that_class     = "fetid_CT_Sql"; ## data storage container
 }
 
-class rtrmin_Auth extends Auth {
-  var $classname      = "rtrmin_Auth";
+class fetid_Auth extends Auth {
+  var $classname      = "fetid_Auth";
 
   var $lifetime       =  300;
 
-  var $database_class = "DB_rtrmin";
+  var $database_class = "DB_fetid";
   var $database_table = "auth_user";
   
   function auth_loginform() {
@@ -148,23 +148,23 @@ class rtrmin_Auth extends Auth {
             echo "<b>Failed:</b> $query";
         } else {
           echo "User \"$phplib_username\" created.<BR>";
-          mail ($emailaddress,"Welcome to rtrmin.local","
+          mail ($emailaddress,"Welcome to fetid.local","
 Welcome!, someone (hopefully you!) has registered this email address for guest access
-to the website at http://rtrmin.local.
+to the website at http://fetid.local.
 
 Your new password is ".$phplib_password."
 
 You may now visit the site guest access pages or sign up for full membership.
 
 Thank-you for visiting,
-info@rtrmin.local
+info@fetid.local
 
 
 PS: If you did not register the email address ".$emailaddress." (ie some else did),
 you can remove it from our database by clicking below:-
-http://rtrmin.local/unsubscribe.php?uid=".$u_id."
+http://fetid.local/unsubscribe.php?uid=".$u_id."
 
-","From:info@rtrmin.local");
+","From:info@fetid.local");
 	 echo "The Password has been emailed to ".$emailaddress;
          $this->mode="log";
     	 include($_ENV["local"] . "loginform.ihtml");
@@ -191,25 +191,25 @@ http://rtrmin.local/unsubscribe.php?uid=".$u_id."
 
 }
 
-class rtrmin_Auth_Reg extends rtrmin_Auth {
-  var $classname = "rtrmin_Auth_Reg";
+class fetid_Auth_Reg extends fetid_Auth {
+  var $classname = "fetid_Auth_Reg";
   var $mode      = "reg";
 }
 
 
-class rtrmin_Default_Auth extends rtrmin_Auth {
-  var $classname = "rtrmin_Default_Auth";
+class fetid_Default_Auth extends fetid_Auth {
+  var $classname = "fetid_Default_Auth";
   
   var $nobody    = true;
 }
 
-class rtrmin_Challenge_Auth extends Auth {
-  var $classname      = "rtrmin_Challenge_Auth";
+class fetid_Challenge_Auth extends Auth {
+  var $classname      = "fetid_Challenge_Auth";
 
   var $lifetime       =  1;
 
   var $magic          = "Simsalabim";  ## Challenge seed
-  var $database_class = "DB_rtrmin";
+  var $database_class = "DB_fetid";
   var $database_table = "auth_user";
 
   function auth_loginform() {
@@ -267,17 +267,17 @@ class rtrmin_Challenge_Auth extends Auth {
 }
 
 ##
-## rtrmin_Challenge_Crypt_Auth: Keep passwords in md5 hashes rather 
+## fetid_Challenge_Crypt_Auth: Keep passwords in md5 hashes rather 
 ##                           than cleartext in database
 ## Author: Jim Zajkowski <jim@jimz.com>
 
-class rtrmin_Challenge_Crypt_Auth extends Auth {
-  var $classname      = "rtrmin_Challenge_Crypt_Auth";
+class fetid_Challenge_Crypt_Auth extends Auth {
+  var $classname      = "fetid_Challenge_Crypt_Auth";
 
   var $lifetime       =  1;
 
   var $magic          = "Frobozzica";  ## Challenge seed
-  var $database_class = "DB_rtrmin";
+  var $database_class = "DB_fetid";
   var $database_table = "auth_user_md5";
 
   function auth_loginform() {
@@ -327,8 +327,8 @@ class rtrmin_Challenge_Crypt_Auth extends Auth {
   }
 }
 
-class rtrmin_Perm extends Perm {
-  var $classname = "rtrmin_Perm";
+class fetid_Perm extends Perm {
+  var $classname = "fetid_Perm";
   
   var $permissions = array(
 				"guest"  	  =>   1,

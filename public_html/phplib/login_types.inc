@@ -5,7 +5,7 @@ class login_typesform extends tpl_form {
   var $key = "login_type";
   var $key_field = "login_type"; # if different to $key
   var $classname = "login_typesform";
-  var $database_class = "DB_rtrmin";
+  var $database_class = "DB_fetid";
 
   function setup_fields () {
     $this->form_data->add_element(array("type"=>"text","name"=>"login_type","maxlength"=>"60","size"=>"20"
