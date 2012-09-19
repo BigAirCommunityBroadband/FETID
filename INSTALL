@@ -1,0 +1,142 @@
+=======================
+Installing RANCID FETID
+=======================
+
+This is a simple to use front end for RANCID. 
+It is a full featured content management website with permission controls.
+Database abstraction is provided by PHP Database Objects (PDO).
+So you can use pretty much any database server.
+We have tested with MySQL, and expect it will work on PostGreSQL, SQlite3.
+
+There is a public/private key generator that must be used to create keys.
+The public key is used by the web site to encrypt all passwords stored
+in the database.  Keys last for 10 years, but you can replace the keys
+easily but deleting the sql database and re-importing the flat files.
+
+This way the sql database does not have the actual passwords in it.
+You can create off-site backups of the sql and you only need to keep the
+private keys file separately.
+
+I will be installing into /var/www/fetid/public_html as my website home folder.
+
+I have my git home in /var/git/ but you could have it anywhere
+
+for read/write access
+/var/git $ git clone git@github.com:BigAirCommunityBroadband/FETID.git
+
+or read only 
+$ git clone https://github.com/BigAirCommunityBroadband/FETID.git
+
+/var/git $ cd FETID/
+
+===================
+Create the database
+===================
+
+This is how I did it...
+dave@localhost /var/git/FETID $ mysql -p -uroot
+Enter password: 
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 37
+Server version: 5.2.12-MariaDB-mariadb115 (MariaDB - http://mariadb.com/)
+
+This software comes with ABSOLUTELY NO WARRANTY. This is free software,
+and you are welcome to modify and redistribute it under the GPL v2 license
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> CREATE DATABASE rancid;
+Query OK, 1 row affected (0.00 sec)
+
+MariaDB [(none)]> GRANT ALL ON rancid.* TO rancid@localhost IDENTIFIED BY 'cFa478w79VvQ5ved';
+Query OK, 0 rows affected (0.00 sec)
+
+Import the schema
+
+/var/git/FETID $ cat rancid.sql | mysql -p rancid -u rancid 
+Enter password: 
+/var/git/FETID $
+
+You may need to adjust the above, to create the database files, but I don’t intend to give a full run down on creating databases and setting up access to them here.
+
+============================
+Setup the public_html folder
+============================
+
+/var/git/FETID $ mkdir /var/www/fetid
+/var/git/FETID $ cp -r public_html /var/www/fetid/
+
+=================
+Setting up phplib 
+=================
+
+/var/git/ $ git clone https://github.com/bevhost/phplib.git
+/var/git/ $ cd phplib
+
+by default phplib lives in /usr/share/
+
+/var/git/phplib $ /mkdir /usr/share/phplib
+/var/git/phplib $ cp inc/* /usr/share/phplib/
+
+but can also reside in public_html/phplib eg:
+/var/git/phplib $ cp inc/* /var/www/fetid/public_html/phplib/
+
+=========================
+Setting up the web server
+=========================
+
+There is a sample apache config in the git repo, bit in either case you need some rewrite rules.
+Apache (already in .htaccess)
+
+RewriteBase /
+RewriteRule ^(.*)/(.*)\.html$ $1/$2.html [L,NC]
+RewriteRule ^(.*)\.html$ template.php?page=$1 [L,NC]
+RewriteRule ^register$ register.php
+RewriteRule ^admin$ MenuEditor.php
+
+Nginx (needs to be configured)
+
+rewrite ^/(.*)/(.*).html$ /$1/$2.html break;
+rewrite ^/(.*).html$ /template.php?page=$1 break;
+rewrite ^/register$ /register.php break;
+rewrite ^/admin$ /MenuEditor.php break;
+rewrite ^/$ /template.php?page=index break;
+
+==========================
+Checking the configuration
+==========================
+
+/var/www/fetid/public_html $ cd phplib
+/var/www/fetid/public_html/phplib $ vi .htauth.local
+
+Look for the database definition DB_fetid
+
+check all the values under there for the database connection details.
+check the paths to the web serving folder
+
+Database credentials are also found in import.php, routerdb.php and cloginrc.php in public_html. These three files are designed to operate stand-alone if your rancid machine is not the same machine as your web server.  They require a single phplib file called db_pdo.inc
+
+You can run a database connectivity test.
+
+/var/www/fetid/public_html $ php check_db_access.php 
+11 tables found in db rancid on mysql server localhost
+Created admin user with password rancid
+
+Setting up the basics
+
+In the web interface
+Change the admin password (Admin->Manage Logins)
+Add some device types eg: Cisco, Juniper, MikroTik
+Add some login types eg: ssh, telnet
+Add your sections (Admin->Sections)
+
+Create your database encryption keys
+
+The web server only needs the public key, but the rancid machine needs the private key as well.
+If you webserver is seperate from your rancid box, especially on public hosting be sure to remove the private key from the keys.php on the web server.
+
+To create keys.php
+/var/www/fetid/public_html $ rm keys.php
+/var/www/fetid/public_html $ php mk_keys.php
+
+The keys will be created having a 10 year lifespan, however you can change the keys more often thn that if you wish, make sure your export all your devices remove the keys.php, re-create it then re-import the rancid config files back into the database.
