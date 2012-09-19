@@ -1,10 +1,10 @@
 <?php
-$_ENV["Domain"] = "rtrmin.local";
+$_ENV["Domain"] = "fetid.local";
 $_ENV["HomeDirs"] = "/var/www/";
-$_ENV["BaseName"] = "rtrmin";
+$_ENV["BaseName"] = "fetid";
 $_ENV["SubFolder"] = "";
-$_ENV["DocRoot"] = "/var/www/rtrmin/public_html";
-$_ENV["SiteRoot"] = "/var/www/rtrmin/public_html/";
+$_ENV["DocRoot"] = "/var/www/fetid/public_html";
+$_ENV["SiteRoot"] = "/var/www/fetid/public_html/";
 $_ENV["DatabaseClass"] = "DB_".$_ENV["BaseName"];
 $_ENV["SessionClass"] = $_ENV["BaseName"]."_Session";
 $_ENV["AuthClass"] = $_ENV["BaseName"]."_Auth";
@@ -40,8 +40,8 @@ function hash_auth($u,$p) {
         #return addslashes($p);         // store passwords in clear text - not recommended.
         #return md5($p);                // better but still not great.
         #return sha1($p.$u);            // username used as a salt, and better hash
-        return base64_encode(hash("sha256",$p.md5($u),true));  // now this could be tricky to crack
-        #return base64_encode(hash("sha512",sha1($p).md5($u),true));  // now this could be tricky to crack
+        #return base64_encode(hash("sha256",$p.md5($u),true));  // now this could be tricky to crack
+        return base64_encode(hash("sha512",sha1($p).md5($u),true));  // now this could be tricky to crack
 }
 
 ?>
