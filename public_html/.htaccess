@@ -1,4 +1,3 @@
-
 IndexIgnore .htaccess */.??* *~ *# */HEADER* */README* */_vti*
 
 <Limit GET POST>
@@ -27,6 +26,5 @@ RewriteRule ^admin$ MenuEditor.php
 
 </IfModule>
 
-RewriteCond %{HTTP_HOST} ^www\.thisname\.com\.au$
-RewriteRule ^/?$ "http\:\/\/www\.thatname\.com\.au\/" [R=301,L]
+
 
