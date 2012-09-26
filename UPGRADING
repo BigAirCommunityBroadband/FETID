@@ -17,6 +17,7 @@ eg
 /var/git/FETID/public_html # diff . /var/www/fetid/public_html/ | more
 
 then copy across anything that passes the sanity test
+eg don’t overwrite your config file .htauth.local
 
 /var/git/FETID/public_html # cp bla.php /var/www/fetid/public_html/bla.php
 
