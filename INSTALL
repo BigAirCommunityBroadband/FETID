@@ -81,6 +81,22 @@ by default phplib lives in /usr/share/
 but can also reside in public_html/phplib eg:
 /var/git/phplib $ cp inc/* /var/www/fetid/public_html/phplib/
 
+==================
+setting up editors
+==================
+
+if not using a content editor then comment it out of 
+/var/www/fetid/public_html/phplib/.htauth.local
+look for a line which says $_ENV["editor"]= and insert # at the start
+otherwise it must be set up as follows
+
+# cd ~
+# wget http://repo.bevhost.com/phplib-editors-1.0.tar.gz
+ or https://github.com/downloads/bevhost/phplib/phplib-editors-1.0.tar.gz
+# tar zxvf phplib-editors-1.0.tar.gz
+# cd phplib-editors-1.0/
+# mv * /usr/share/phplib/
+
 =========================
 Setting up the web server
 =========================
