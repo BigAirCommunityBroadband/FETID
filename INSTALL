@@ -65,6 +65,7 @@ Setup the public_html folder
 
 /var/git/FETID $ mkdir /var/www/fetid
 /var/git/FETID $ cp -r public_html /var/www/fetid/
+/var/git/FETID $ cd ..
 
 =================
 Setting up phplib 
@@ -156,3 +157,29 @@ To create keys.php
 /var/www/fetid/public_html $ php mk_keys.php
 
 The keys will be created having a 10 year lifespan, however you can change the keys more often thn that if you wish, make sure your export all your devices remove the keys.php, re-create it then re-import the rancid config files back into the database.
+
+
+===================================================
+System requirements / special distro specific notes
+===================================================
+
+Distro or platform I found this on
+Hint / what to do
+
+Turnkey Linux Lamp Stack (based on debian squeeze)
+# apt-get install php5-cli
+
+Webmin
+Servers => Apache => Global Configuration => Configure Apache Modules (Change rewrite to enabled)
+
+
+
+===============
+Troubleshooting
+===============
+
+When I press the Home link on the web site I get "The requested URL /index.html was not found on this server."
+Apache Mod Rewrite might be disabled or .htaccess is not enabled via AllowOverride
+
+
+
