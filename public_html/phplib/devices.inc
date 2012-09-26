@@ -42,6 +42,11 @@ class devicesform extends tpl_form {
                 "valid_regex"=>"^[0-9]+$","field"=>"timeout",
                 "valid_e"=>"Timeout must be a whole number containing digits 0-9 only.",
                 "extrahtml"=>"","value"=>"0"));
+    $this->form_data->add_element(array("type"=>"select","name"=>"state","field"=>"state",
+                "extrahtml"=>"class='dropdownMenu'",
+                "options"=>array('Up','Down'),"value"=>"Up"));
+    $this->form_data->add_element(array("type"=>"textarea","name"=>"comments","rows"=>"5","cols"=>"50",
+                "field"=>"comments","extrahtml"=>""));
     $this->form_data->add_element(array("type"=>"submit","name"=>"submit","value"=>"Submit"));
 
     $this->form_data->after = <<< JAVASCRIPT
@@ -81,13 +86,15 @@ JAVASCRIPT;
                 $val_ok = false;
         }
 	include ("../keys.php");
+	if (empty($_POST["passwd"][0])) $_POST["passwd"]=""; else
 	if (openssl_public_encrypt($_POST["passwd"][0],$encrypted,$PublicKey,OPENSSL_PKCS1_OAEP_PADDING)) {
 		$_POST["passwd"] = base64_encode($encrypted);
-		echo $_POST["passwd"];
         }
+	if (empty($_POST["en_passwd"][0])) $_POST["en_passwd"]=""; else
 	if (openssl_public_encrypt($_POST["en_passwd"][0],$encrypted,$PublicKey,OPENSSL_PKCS1_OAEP_PADDING)) {
 		$_POST["en_passwd"] = base64_encode($encrypted);
         }
+	$GLOBALS["passwd"] = $_POST["passwd"];
         return $val_ok;
   }
 
@@ -107,7 +114,9 @@ class devicesTable extends Table {
 			"en_passwd",
 			"no_enable",
 			"ssh_cmd",
- 			"timeout");
+ 			"timeout",
+			"state",
+			"comments");
 
   /* comment out or delete some of these default entries so that the table isn't too wide for the screen */
   var $default = array(
@@ -130,7 +139,9 @@ class devicesTable extends Table {
 			"en_passwd"=>"En Passwd",
                         "no_enable"=>"No Enable",
                         "ssh_cmd"=>"SSH Command",
-			"timeout"=>"Timeout");
+			"timeout"=>"Timeout",
+			"state"=>"State",
+			"comments"=>"Comments");
 }
 class devices_Sql_Query extends Sql_Query {
   var $classname = "devices_Sql_Query";

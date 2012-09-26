@@ -29,6 +29,8 @@
                 <?php $this->form_data->show_element('ssh_cmd'); ?> </td></tr>
     <tr><td>Timeout</td><td>
                 <?php $this->form_data->show_element('timeout'); ?> seconds</td></tr>
+    <tr><td>Comments</td><td>
+                <?php $this->form_data->show_element('comments'); ?> </td></tr>
     <tr><td>&nbsp;</td><td> 
 		<?php 
                 if ($cmd=="View") {
