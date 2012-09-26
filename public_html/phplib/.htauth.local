@@ -26,7 +26,7 @@ $_ENV["header"] = "head.inc";  #eg "head.inc";	   /* html header file to output 
 $_ENV["pophead"] = "pophead.inc"; #eg "pophead.inc";  /* html header file to output when it's a popup */
 $_ENV["footer"] = "foot.inc";  #eg "foot.inc";	   /* html footer file to output in page_close */
 
-class DB_rtrmin extends DB_Sql {
+class DB_fetid   extends DB_Sql {
   var $Host     = "localhost";
   var $Database = "rancid";
   var $User     = "rancid";
