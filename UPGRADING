@@ -1,0 +1,29 @@
+
+======================================
+Upgrading to a new version of software
+======================================
+
+You may wish to take a backup before you start
+
+# cd /var/git/FETID
+# git pull
+
+git will display the files which are changed.
+You may want to paste this report to a notepad so you don't loose it before you're done.
+
+I like to diff the files to see what changed
+eg
+
+/var/git/FETID/public_html # diff . /var/www/fetid/public_html/ | more
+
+then copy across anything that passes the sanity test
+
+/var/git/FETID/public_html # cp bla.php /var/www/fetid/public_html/bla.php
+
+
+If there is an update to phplib basically the procedure is the same
+
+# cd /var/git/phplib
+# git pull
+# cd phplib/inc
+# diff . /usr/share/phplib/
