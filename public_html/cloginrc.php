@@ -2,7 +2,7 @@
 
 $path = "/var/lib/rancid/.cloginrc-%s"; 	# %s = Section
 
-include ("/usr/share/phplib/db_pdo.inc");	# PHP Database Objects, PHPLIB style 
+include ("db_pdo.inc");				# PHP Database Objects, PHPLIB style 
 
 class DB_rancid extends DB_Sql {
   var $Host     = "localhost";
@@ -21,7 +21,16 @@ function escape($str) {
 	$str = str_replace("}","\}",$str);
 	return "{".$str."}";
 }
-$db->query("SELECT * FROM devices ORDER BY section, hostname, username");
+
+$where = ""; # do all sections unless arguments found to specify the sections to do
+for ($i=1; $i<$argc; $i++) {
+        if ($where) $where .= ",";
+        $where .= $db->quote($argv[$i]);  # escape strings according to database type and language
+}
+if ($where) $where = "WHERE section IN ($where)";
+# $where = "WHERE section IN ('NSW','QLD','VIC')";   #set sections manually here rather than command line
+
+$db->query("SELECT * FROM devices $where ORDER BY section, hostname, username");
 $last = "";
 $fp = false;
 while ($db->next_record()) {
@@ -55,5 +64,5 @@ while ($db->next_record()) {
 	fwrite($fp,"#---\n");
 	$last = $ucname;
 }
-fclose($fp);
+if ($fp) fclose($fp);
 ?>
