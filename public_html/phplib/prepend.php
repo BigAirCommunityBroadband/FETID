@@ -31,7 +31,7 @@ if (($REMOTE_ADDR==$testip) or ($REMOTE_ADDR=="58.174.77.127")) {
 } else {
  	$dev=false;
 }
-if (array_pop(explode(".",$_SERVER["HTTP_HOST"]))=="local") $dev=true;
+if (array_key_exists("HTTP_HOST",$_SERVER)) if (array_pop(explode(".",$_SERVER["HTTP_HOST"]))=="local") $dev=true;
 if ($DOCUMENT_ROOT == "/var/www/portal/public_html") $dev=false;
 if ($dev) {
 	ini_set('display_errors', 'On');
