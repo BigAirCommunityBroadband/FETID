@@ -158,6 +158,14 @@ To create keys.php
 
 The keys will be created having a 10 year lifespan, however you can change the keys more often thn that if you wish, make sure your export all your devices remove the keys.php, re-create it then re-import the rancid config files back into the database.
 
+==================================================
+Setting up PHPExcel for Excel 2007 export function
+==================================================
+requires php-pear (see below)
+
+then
+# pear channel-discover pear.pearplex.net
+# pear install pearplex/PHPExcel
 
 ===================================================
 System requirements / special distro specific notes
@@ -168,9 +176,14 @@ Hint / what to do
 
 Turnkey Linux Lamp Stack (based on debian squeeze)
 # apt-get install php5-cli
+# apt-get install php-pear
+
+redhat/centos/fedora
+# yum install php-pear
 
 Webmin
 Servers => Apache => Global Configuration => Configure Apache Modules (Change rewrite to enabled)
+
 
 
 
