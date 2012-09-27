@@ -28,3 +28,11 @@ If there is an update to phplib basically the procedure is the same
 # git pull
 # cd phplib/inc
 # diff . /usr/share/phplib/
+
+===========
+SQL CHANGES
+===========
+
+# cat rancid1.sql | mysql -p rancid -u rancid 
+# cat rancid2.sql | mysql -p rancid -u rancid 
+etc
