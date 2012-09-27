@@ -155,6 +155,7 @@ If you webserver is seperate from your rancid box, especially on public hosting 
 To create keys.php
 /var/www/fetid/public_html $ rm keys.php
 /var/www/fetid/public_html $ php mk_keys.php
+/var/www/fetid/public_html $ mv keys.php ..   /* keys placed outside public_html just incase mod_php is disabled so apache doesn't server the key file source code */
 
 The keys will be created having a 10 year lifespan, however you can change the keys more often thn that if you wish, make sure your export all your devices remove the keys.php, re-create it then re-import the rancid config files back into the database.
 
