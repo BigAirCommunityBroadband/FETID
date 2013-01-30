@@ -387,7 +387,7 @@ function my_error_handler($errno, $errstr, $errfile, $errline, $errcontext) {
 			exit; 
 		} else
                 if (!$dev) die("<br><br><big><b>Oops, well this is embarrassing! &nbsp; An error has occurred:</b>
-                        <br>Please quote <b>Event ID $error</b> if calling helpdesk on 1300 739 822 from 9am to 8pm</big>");
+                        <br>Please quote <b>Event ID $error</b> if calling helpdesk.</big>");
     }
 }
 
