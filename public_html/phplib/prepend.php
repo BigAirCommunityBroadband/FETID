@@ -31,6 +31,7 @@ if (($REMOTE_ADDR==$testip) or ($REMOTE_ADDR=="58.174.77.127")) {
 } else {
  	$dev=false;
 }
+if (!$REMOTE_ADDR) $dev=true;
 if (array_key_exists("HTTP_HOST",$_SERVER)) if (array_pop(explode(".",$_SERVER["HTTP_HOST"]))=="local") $dev=true;
 if ($DOCUMENT_ROOT == "/var/www/portal/public_html") $dev=false;
 if ($dev) {
@@ -154,7 +155,7 @@ function EventLog($Description,$ExtraInfo="",$Level="Info") {
                 if (date("d-M-Y")<>"11-May-2011") return;  // Only debug if date matches.
         }
         global $PHP_SELF, $argv, $REMOTE_ADDR, $auth, $action, $dev;
-        $db = new $_ENV["DatabaseClass"];
+	if (isset($_ENV["DatabaseClass"])) $db = new $_ENV["DatabaseClass"]; else return;
         if ($PHP_SELF) $Program=$PHP_SELF; else $Program = $argv[0];
         if ($Program=='/hello.php') $Program=$action;
         $UserName = "NotLoggedIn";
