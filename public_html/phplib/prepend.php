@@ -32,8 +32,8 @@ if (($REMOTE_ADDR==$testip) or ($REMOTE_ADDR=="58.174.77.127")) {
  	$dev=false;
 }
 if (!$REMOTE_ADDR) $dev=true;
-if (array_key_exists("HTTP_HOST",$_SERVER)) if (array_pop(explode(".",$_SERVER["HTTP_HOST"]))=="local") $dev=true;
-if ($DOCUMENT_ROOT == "/var/www/portal/public_html") $dev=false;
+$dev=true; #uncomment for production
+if ($DOCUMENT_ROOT == "/var/www/portal/public_html") $dev=false;  # production server path
 if ($dev) {
 	ini_set('display_errors', 'On');
 	if (array_key_exists("HTTP_HOST",$_SERVER)) ini_set('html_errors', 'On');
@@ -96,7 +96,7 @@ require($_ENV["local"] . "local.inc");	/* Required, contains your local configur
 
 if (file_exists($inc="phplib".substr($PHP_SELF,0,-3)."inc")) include($inc);  /* Include SQL & form class to match this php */
 
-require($_ENV["libdir"] . "page.inc");	/* Required, contains the page management functions. */
+require($_ENV["local"] . "page.inc");	/* Required, contains the page management functions. */
 
 #require($_ENV['libdir'] . 'htmlMail.php');	/* for sending MIME encoded email messages. */
 #require($_ENV['libdir'] . 'web.php');	/* for access web pages with cookies etc. */
@@ -105,7 +105,7 @@ if ($_ENV["editor"]=="fckeditor") include("/usr/share/phplib/fckeditor/fckeditor
 if ($_ENV["editor"]=="ckeditor") include("/usr/share/phplib/ckeditor/ckeditor.php");
 if ($_ENV["editor"]=="ckfinder") include("/usr/share/phplib/ckeditor/ckeditor.php");
 
-if ($_SERVER['HTTP_COOKIE']) { 
+if (isset($_SERVER['HTTP_COOKIE'])) { 
         if (strstr($_SERVER['HTTP_COOKIE'],$_ENV["SessionClass"])===FALSE) unset($modRW);
         else $modRW = "on";
 } 
@@ -326,7 +326,10 @@ function my_error_handler($errno, $errstr, $errfile, $errline, $errcontext) {
     if (!isset($ErrorCount)) $ErrorCount=0;
     $ErrorCount++;
     $errno = $errno & error_reporting();
-    if ($errno == 0) return;
+    if ($errno == 0) {
+	if ($errstr) echo $errstr;
+	return;
+     }
     if (error_reporting() === 0) {
         // continue script execution, skipping standard PHP error handler
         return true;
